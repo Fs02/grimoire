@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+
+    <title>Grimoire | Preloading Association </title>
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    
+
+    <!-- fonts -->
+    <link href="//fonts.googleapis.com/css?family=Source+Sans+Pro:400,700" rel="stylesheet">
+    <link href="//fonts.googleapis.com/css?family=Ubuntu:300,400,500,600,700" rel="stylesheet">
+
+    <!-- stylesheets -->
+    <link rel="stylesheet" href="/style/doc.css">
+
+    <!-- favicon -->
+    <link rel="icon" href="/images/favicon.ico">
+
+    
+
+  </head>
+  <body>
+
+   <script>window.__INITIAL_STATE__ = {"page":{"title":"Preloading Association","path":"association/preloading.html","support":{"link_url":"https://github.com/Fs02/grimoire/issues/new","link_text":"Raise an Issue on Github","text":"Didn't you find what are you looking for? <br /> Try searching again on the left menu or","navigation":true,"navigation_label":"SUPPORT"}},"data":{"navigation":{"logo":{"text":"GRIMOIRE","type":"link","path":"index.html"},"main":[{"text":"Overview","type":"link","path":"index.html"},{"text":"Adapters","type":"link","path":"adapters.html"},{"text":"Github","type":"link","path":"https://github.com/Fs02/grimoire"},{"text":"CRUD","type":"label"},{"text":"Insert","type":"link","path":"crud/insert.html"},{"text":"Query","type":"link","path":"crud/query.html"},{"text":"Update","type":"link","path":"crud/update.html"},{"text":"Delete","type":"link","path":"crud/delete.html"},{"text":"ASSOCIATION","type":"label"},{"text":"Preloading","type":"link","path":"association/preloading.html"},{"text":"OTHERS","type":"label"},{"text":"Transactions","type":"link","path":"others/transactions.html"},{"text":"Field Mapping","type":"link","path":"others/field-mapping.html"},{"text":"Logger","type":"link","path":"others/logger.html"}]}},"config":{"timezone":"UTC","root":"/","time_format":"HH:mm:ss","theme":"../node_modules/hexo-theme-doc","theme_config":{"swagger_ui":{"version":2,"permalinks":true,"api_explorer":true,"download":"Download specification","show_extensions":false,"deep_linking":true,"display_operation_id":false,"doc_expansion":"none"},"search":{"skip":false,"background":false,"route":"/lunr.json"},"favicon":"images/favicon.ico","support":{"link_url":"https://github.com/Fs02/grimoire/issues/new","link_text":"Raise an Issue on Github","text":"Didn't you find what are you looking for? <br /> Try searching again on the left menu or","navigation":true,"navigation_label":"SUPPORT"},"navigation_label":"SUPPORT AND FEEDBACK"}}}</script>
+
+    <div id="react-navigation-root"><div class="doc-navigation" data-reactroot=""><nav class="doc-navbar"><a href="/index.html" class="doc-navbar__logo"><img src="/images/logo.png" class="doc-navbar__logo__img"/><span class="doc-navbar__logo__text">GRIMOIRE</span></a><i class="dc-icon dc-icon--close dc-icon--interactive doc-sidebar-close doc-navbar__sidebar-close doc-navbar__sidebar-close--desktop"></i><i class="dc-icon dc-icon--menu dc-icon--interactive doc-sidebar-toggle doc-navbar__sidebar-toggle"></i></nav><nav class="doc-sidebar"><div class="doc-sidebar__vertical-menu"><i class="dc-icon dc-icon--menu dc-icon--interactive doc-sidebar-toggle doc-sidebar-toggle--primary doc-sidebar__vertical-menu__item"></i><i class="dc-icon dc-icon--search dc-icon--interactive doc-sidebar__vertical-menu__item doc-sidebar__vertical-menu__item--primary"></i></div><div class="doc-sidebar-content"><div class="doc-sidebar__search-form"></div><ul class="doc-sidebar-list"><li class="doc-sidebar-list__item doc-sidebar-list__item--label"><span class="">SUPPORT</span></li><li class="doc-sidebar-list__item doc-sidebar-list__item--link"><a class="" href="https://github.com/Fs02/grimoire/issues/new" target="_blank"><span>Raise an Issue on Github</span></a></li></ul></div></nav></div></div>
+    <div class="doc-content">
+  <div class="dc-page">
+    <div class="dc-card">
+      <div id="react-search-results-root"></div>
+      <div id="page-content" class="doc-formatting">
+        <h1 id="Preloading"><a href="#Preloading" class="headerlink" title="Preloading"></a>Preloading</h1><p>Grimoire supports preloading association within struct using grimoire query builder.</p>
+<p>Optional field tags:</p>
+<ul>
+<li><code>references</code> - Sets the key on the current schema to be used for the association.</li>
+<li><code>foreign_key</code> - Sets the foreign key, this should map to a field on the other schema.</li>
+</ul>
+<figure class="highlight golang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Assume the following tables.</span></span><br><span class="line"><span class="keyword">type</span> User <span class="keyword">struct</span> &#123;</span><br><span class="line">	ID           <span class="keyword">int</span></span><br><span class="line">	Name         <span class="keyword">string</span></span><br><span class="line">	Age          <span class="keyword">int</span></span><br><span class="line">	Transactions []Transaction <span class="string">`references:"ID" foreign_key:"BuyerID"`</span> <span class="comment">// Optional, if not provided grimoire will try to guess it for you</span></span><br><span class="line">	Address      Address</span><br><span class="line">	CreatedAt    time.Time</span><br><span class="line">	UpdatedAt    time.Time</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> Transaction <span class="keyword">struct</span> &#123;</span><br><span class="line">	ID      <span class="keyword">int</span></span><br><span class="line">	BuyerID <span class="keyword">int</span>  <span class="string">`db:"user_id"`</span></span><br><span class="line">	Buyer   User <span class="string">`references:"BuyerID" foreign_key:"ID"`</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> Address <span class="keyword">struct</span> &#123;</span><br><span class="line">	ID     <span class="keyword">int</span></span><br><span class="line">	City   <span class="keyword">string</span></span><br><span class="line">	UserID *<span class="keyword">int</span></span><br><span class="line">	User   *User</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">user := User&#123;ID: <span class="number">10</span>&#125;</span><br><span class="line">transaction := Transaction&#123;ID: <span class="number">10</span>, BuyerID: <span class="number">10</span>&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// Preload an address (has one) where UserID=10.</span></span><br><span class="line">repo.From(<span class="string">"addresses"</span>).Preload(&amp;user, <span class="string">"Address"</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment">// Preload transactions (has many) where UserID=10.</span></span><br><span class="line">repo.From(<span class="string">"transactions"</span>).Preload(&amp;user, <span class="string">"Transaction"</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment">// Preload buyer (belongs to) where ID=10</span></span><br><span class="line">repo.From(<span class="string">"users"</span>).Preload(&amp;transaction, <span class="string">"Buyer"</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment">// Grimoire supports preloading using slice of structs.</span></span><br><span class="line">users := []User&#123;&#123;ID: <span class="number">10</span>, ID: <span class="number">20</span>&#125;&#125;</span><br><span class="line">repo.From(<span class="string">"addresses"</span>).Preload(&amp;users, <span class="string">"Address"</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment">// Grimoire supports preloading nested struct.</span></span><br><span class="line"><span class="comment">// Preload buyer first.</span></span><br><span class="line">repo.From(<span class="string">"users"</span>).Preload(&amp;transaction, <span class="string">"Buyer"</span>)</span><br><span class="line"><span class="comment">// then preload its address.</span></span><br><span class="line">repo.From(<span class="string">"addresses"</span>).Preload(&amp;transaction, <span class="string">"Buyer.Address"</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment">// It's also possible to add custom query to preloading query.</span></span><br><span class="line"><span class="comment">// Only preload address with city=Bandung.</span></span><br><span class="line">repo.From(<span class="string">"addresses"</span>).Where(c.Eq(c.I(<span class="string">"city"</span>), <span class="string">"Bandung"</span>)).Preload(&amp;user, <span class="string">"Address"</span>)</span><br></pre></td></tr></table></figure>
+
+        <div id="react-support-footer-root"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+
+    
+
+    <!-- js vendors -->
+    <script src="//code.jquery.com/jquery-3.2.1.min.js" crossorigin="anonymous"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/lunr.js/2.1.0/lunr.min.js"></script>
+
+    <!-- js source  -->
+    <script src="/script/doc.js"></script>
+
+    
+
+  </body>
+</html>

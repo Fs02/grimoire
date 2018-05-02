@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+
+    <title>Grimoire | Updating Records </title>
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    
+
+    <!-- fonts -->
+    <link href="//fonts.googleapis.com/css?family=Source+Sans+Pro:400,700" rel="stylesheet">
+    <link href="//fonts.googleapis.com/css?family=Ubuntu:300,400,500,600,700" rel="stylesheet">
+
+    <!-- stylesheets -->
+    <link rel="stylesheet" href="/style/doc.css">
+
+    <!-- favicon -->
+    <link rel="icon" href="/images/favicon.ico">
+
+    
+
+  </head>
+  <body>
+
+   <script>window.__INITIAL_STATE__ = {"page":{"title":"Updating Records","path":"crud/update.html","support":{"link_url":"https://github.com/Fs02/grimoire/issues/new","link_text":"Raise an Issue on Github","text":"Didn't you find what are you looking for? <br /> Try searching again on the left menu or","navigation":true,"navigation_label":"SUPPORT"}},"data":{"navigation":{"logo":{"text":"GRIMOIRE","type":"link","path":"index.html"},"main":[{"text":"Overview","type":"link","path":"index.html"},{"text":"Adapters","type":"link","path":"adapters.html"},{"text":"Github","type":"link","path":"https://github.com/Fs02/grimoire"},{"text":"CRUD","type":"label"},{"text":"Insert","type":"link","path":"crud/insert.html"},{"text":"Query","type":"link","path":"crud/query.html"},{"text":"Update","type":"link","path":"crud/update.html"},{"text":"Delete","type":"link","path":"crud/delete.html"},{"text":"ASSOCIATION","type":"label"},{"text":"Preloading","type":"link","path":"association/preloading.html"},{"text":"OTHERS","type":"label"},{"text":"Transactions","type":"link","path":"others/transactions.html"},{"text":"Field Mapping","type":"link","path":"others/field-mapping.html"},{"text":"Logger","type":"link","path":"others/logger.html"}]}},"config":{"timezone":"UTC","root":"/","time_format":"HH:mm:ss","theme":"../node_modules/hexo-theme-doc","theme_config":{"swagger_ui":{"version":2,"permalinks":true,"api_explorer":true,"download":"Download specification","show_extensions":false,"deep_linking":true,"display_operation_id":false,"doc_expansion":"none"},"search":{"skip":false,"background":false,"route":"/lunr.json"},"favicon":"images/favicon.ico","support":{"link_url":"https://github.com/Fs02/grimoire/issues/new","link_text":"Raise an Issue on Github","text":"Didn't you find what are you looking for? <br /> Try searching again on the left menu or","navigation":true,"navigation_label":"SUPPORT"},"navigation_label":"SUPPORT AND FEEDBACK"}}}</script>
+
+    <div id="react-navigation-root"><div class="doc-navigation" data-reactroot=""><nav class="doc-navbar"><a href="/index.html" class="doc-navbar__logo"><img src="/images/logo.png" class="doc-navbar__logo__img"/><span class="doc-navbar__logo__text">GRIMOIRE</span></a><i class="dc-icon dc-icon--close dc-icon--interactive doc-sidebar-close doc-navbar__sidebar-close doc-navbar__sidebar-close--desktop"></i><i class="dc-icon dc-icon--menu dc-icon--interactive doc-sidebar-toggle doc-navbar__sidebar-toggle"></i></nav><nav class="doc-sidebar"><div class="doc-sidebar__vertical-menu"><i class="dc-icon dc-icon--menu dc-icon--interactive doc-sidebar-toggle doc-sidebar-toggle--primary doc-sidebar__vertical-menu__item"></i><i class="dc-icon dc-icon--search dc-icon--interactive doc-sidebar__vertical-menu__item doc-sidebar__vertical-menu__item--primary"></i></div><div class="doc-sidebar-content"><div class="doc-sidebar__search-form"></div><ul class="doc-sidebar-list"><li class="doc-sidebar-list__item doc-sidebar-list__item--label"><span class="">SUPPORT</span></li><li class="doc-sidebar-list__item doc-sidebar-list__item--link"><a class="" href="https://github.com/Fs02/grimoire/issues/new" target="_blank"><span>Raise an Issue on Github</span></a></li></ul></div></nav></div></div>
+    <div class="doc-content">
+  <div class="dc-page">
+    <div class="dc-card">
+      <div id="react-search-results-root"></div>
+      <div id="page-content" class="doc-formatting">
+        <h1 id="Update"><a href="#Update" class="headerlink" title="Update"></a>Update</h1><p>There’s also three alternatives on how you can update records to a database. The easiest way is by using struct directly.</p>
+<figure class="highlight golang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">user := User&#123;Name: <span class="string">"Alice"</span>, Age: <span class="number">18</span>&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// Update a record from `users` where id=1.</span></span><br><span class="line"><span class="comment">// Notice updating a record using `Save` function is similar to creating, but you will need to specify condition.</span></span><br><span class="line">err := repo.From(<span class="string">"users"</span>).Find(<span class="number">1</span>).Save(&amp;user)</span><br><span class="line"></span><br><span class="line"><span class="comment">// It's also possible to update multiple record (where age=18) at once and retrieves all the results.</span></span><br><span class="line"><span class="comment">// The following will update all record matches the condition and return it to array.</span></span><br><span class="line"><span class="comment">// Only the first item from slice will be used as update value.</span></span><br><span class="line">users := []User&#123;user&#125;</span><br><span class="line">err := repo.From(<span class="string">"users"</span>).Where(c.Eq(c.I(<span class="string">"age"</span>), <span class="number">18</span>)).Save(&amp;users)</span><br></pre></td></tr></table></figure>
+<p>Updating using changeset is similar to inserting.</p>
+<figure class="highlight golang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">user := User&#123;&#125; <span class="comment">// this also hold the schema</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// prepare the changes</span></span><br><span class="line">ch := changeset.Cast(user, <span class="keyword">map</span>[<span class="keyword">string</span>]<span class="keyword">interface</span>&#123;&#125;&#123;</span><br><span class="line">	<span class="string">"name"</span>: <span class="string">"Alice"</span>,</span><br><span class="line">	<span class="string">"age"</span>: <span class="number">18</span>,</span><br><span class="line">	<span class="string">"address"</span>: <span class="string">"world"</span>,</span><br><span class="line">&#125;, []<span class="keyword">string</span>&#123;<span class="string">"name"</span>, <span class="string">"age"</span>&#125;) <span class="comment">// this will filter `address`.</span></span><br><span class="line">changeset.ValidateRequired(ch, []<span class="keyword">string</span>&#123;<span class="string">"name"</span>, <span class="string">"age"</span>&#125;) <span class="comment">// validate `name` and `age` field exists.</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// Update changes to `users` where id=1 table and return the result to `&amp;user`.</span></span><br><span class="line">err := repo.From(<span class="string">"users"</span>).Find(<span class="number">1</span>).Update(&amp;user, ch)</span><br><span class="line"></span><br><span class="line"><span class="comment">// If you don't care about the return value, you can pass nil.</span></span><br><span class="line">err := repo.From(<span class="string">"users"</span>).Find(<span class="number">1</span>).Update(<span class="literal">nil</span>, ch)</span><br><span class="line"></span><br><span class="line"><span class="comment">// The following will update all record matches the condition and return it to array.</span></span><br><span class="line">users := []User&#123;user&#125;</span><br><span class="line">err := repo.From(<span class="string">"users"</span>).Where(c.Eq(c.I(<span class="string">"age"</span>), <span class="number">18</span>)).Update(&amp;user, ch)</span><br><span class="line"></span><br><span class="line"><span class="comment">// If no condition is used, grimoire will update all records.</span></span><br><span class="line">err := repo.From(<span class="string">"users"</span>).Update(<span class="literal">nil</span>, ch)</span><br></pre></td></tr></table></figure>
+<p>It’s also possible to update using query builder directly. Update a record without using changeset or <code>Save</code> method won’t set <code>updated_at</code> fields.</p>
+<figure class="highlight golang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Update a record where id=1.</span></span><br><span class="line">err := repo.From(<span class="string">"users"</span>).Find(<span class="number">1</span>).Set(<span class="string">"name"</span>, <span class="string">"Alice"</span>).Set(<span class="string">"age"</span>, <span class="number">18</span>).Update(&amp;user)</span><br><span class="line"></span><br><span class="line"><span class="comment">// If you don't care about the return value, you can pass nil.</span></span><br><span class="line">err := repo.From(<span class="string">"users"</span>).Find(<span class="number">1</span>).Set(<span class="string">"name"</span>, <span class="string">"Alice"</span>).Set(<span class="string">"age"</span>, <span class="number">18</span>).Update(<span class="literal">nil</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment">// When used alongside Changeset or using `Save` function, it'll replace value defined in changeset or struct.</span></span><br><span class="line"><span class="comment">// This behaviour especially useful when dealing with relation.</span></span><br><span class="line">err := repo.From(<span class="string">"users"</span>).Find(<span class="number">1</span>).Set(<span class="string">"crew_id"</span>, <span class="number">10</span>).Update(&amp;user, ch, ch, ch)</span><br><span class="line">err := repo.From(<span class="string">"users"</span>).Find(<span class="number">1</span>).Set(<span class="string">"crew_id"</span>, <span class="number">10</span>).Save(&amp;users)</span><br></pre></td></tr></table></figure>
+
+        <div id="react-support-footer-root"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+
+    
+
+    <!-- js vendors -->
+    <script src="//code.jquery.com/jquery-3.2.1.min.js" crossorigin="anonymous"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/lunr.js/2.1.0/lunr.min.js"></script>
+
+    <!-- js source  -->
+    <script src="/script/doc.js"></script>
+
+    
+
+  </body>
+</html>
