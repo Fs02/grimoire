@@ -15,10 +15,10 @@ import (
 // Update tests update specifications.
 func Update(t *testing.T, repo grimoire.Repo) {
 	user := User{Name: "update"}
-	assert.Nil(t, repo.From(users).Save(&user))
+	repo.From(users).MustSave(&user)
 
 	address := Address{Address: "update"}
-	assert.Nil(t, repo.From(addresses).Save(&address))
+	repo.From(addresses).MustSave(&address)
 
 	tests := []struct {
 		query  grimoire.Query
@@ -49,10 +49,10 @@ func Update(t *testing.T, repo grimoire.Repo) {
 // UpdateWhere tests update specifications.
 func UpdateWhere(t *testing.T, repo grimoire.Repo) {
 	user := User{Name: "update all"}
-	assert.Nil(t, repo.From(users).Save(&user))
+	repo.From(users).MustSave(&user)
 
 	address := Address{Address: "update all"}
-	assert.Nil(t, repo.From(addresses).Save(&address))
+	repo.From(addresses).MustSave(&address)
 
 	tests := []struct {
 		query  grimoire.Query
@@ -80,10 +80,10 @@ func UpdateWhere(t *testing.T, repo grimoire.Repo) {
 // UpdateSet tests update specifications using Set query.
 func UpdateSet(t *testing.T, repo grimoire.Repo) {
 	user := User{Name: "update"}
-	assert.Nil(t, repo.From(users).Save(&user))
+	repo.From(users).MustSave(&user)
 
 	address := Address{Address: "update"}
-	assert.Nil(t, repo.From(addresses).Save(&address))
+	repo.From(addresses).MustSave(&address)
 
 	tests := []struct {
 		query  grimoire.Query
