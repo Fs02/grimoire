@@ -1,7 +1,6 @@
 package specs
 
 import (
-	"strings"
 	"testing"
 
 	"github.com/Fs02/grimoire"
@@ -124,13 +123,7 @@ func UpdateConstraint(t *testing.T, repo grimoire.Repo) {
 
 	for _, test := range tests {
 		t.Run("UpdateConstraint|"+test.name, func(t *testing.T) {
-			err := test.query.Update(nil)
-			assert.NotNil(t, err)
-
-			// Test for constraint on update
-			gerr, _ := err.(errors.Error)
-			assert.True(t, strings.Contains(gerr.Field, test.field))
-			assert.Equal(t, test.code, gerr.Code)
+			checkConstraint(t, test.query.Insert(nil), test.code, test.field)
 		})
 	}
 }

@@ -2,9 +2,13 @@
 package specs
 
 import (
+	"strings"
+	"testing"
 	"time"
 
 	"github.com/Fs02/grimoire/c"
+	"github.com/Fs02/grimoire/errors"
+	"github.com/stretchr/testify/assert"
 )
 
 // User defines users schema.
@@ -42,3 +46,10 @@ const (
 	createdAt = c.I("created_at")
 	address   = c.I("address")
 )
+
+func checkConstraint(t *testing.T, err error, code int, field string) {
+	assert.NotNil(t, err)
+	gerr, _ := err.(errors.Error)
+	assert.True(t, strings.Contains(gerr.Field, field))
+	assert.Equal(t, code, gerr.Code)
+}
