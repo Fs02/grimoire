@@ -123,7 +123,7 @@ func UpdateConstraint(t *testing.T, repo grimoire.Repo) {
 	}
 
 	for _, test := range tests {
-		t.Run("InsertConstraint|"+test.name, func(t *testing.T) {
+		t.Run("UpdateConstraint|"+test.name, func(t *testing.T) {
 			err := test.query.Update(nil)
 			assert.NotNil(t, err)
 
