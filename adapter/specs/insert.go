@@ -130,6 +130,8 @@ func InsertConstraint(t *testing.T, repo grimoire.Repo) {
 		t.Run("InsertConstraint|"+test.name, func(t *testing.T) {
 			err := test.query.Insert(nil)
 			assert.NotNil(t, err)
+
+			// Test for constraint on insert
 			gerr, _ := err.(errors.Error)
 			assert.True(t, strings.Contains(gerr.Field, test.field))
 			assert.Equal(t, test.code, gerr.Code)
