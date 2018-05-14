@@ -14,6 +14,7 @@ package postgres
 
 import (
 	db "database/sql"
+	"strings"
 
 	"github.com/Fs02/grimoire"
 	"github.com/Fs02/grimoire/adapter/sql"
@@ -89,7 +90,7 @@ func errorFunc(err error) error {
 	if err == nil {
 		return nil
 	} else if e, ok := err.(*pq.Error); ok && e.Code == "23505" {
-		return errors.DuplicateError(e.Message, e.Column)
+		return errors.UniqueConstraintError(e.Message, strings.TrimSuffix(strings.Split(e.Message, "constraint \"")[1], "\""))
 	}
 
 	return err

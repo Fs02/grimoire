@@ -10,6 +10,7 @@ import (
 // User defines users schema.
 type User struct {
 	ID        int64
+	Slug      *string
 	Name      string
 	Gender    string
 	Age       int
