@@ -41,11 +41,24 @@ func TestPutChange(t *testing.T) {
 
 func TestPutChangeNil(t *testing.T) {
 	var a struct {
-		Bool *bool
+		Nullable *bool
 	}
 
 	ch := Cast(a, map[string]interface{}{}, []string{})
-	PutChange(ch, "bool", (*bool)(nil))
+	PutChange(ch, "nullable", nil)
 
 	assert.Nil(t, ch.Error())
+	assert.Equal(t, (*bool)(nil), ch.Changes()["nullable"])
+}
+
+func TestPutChangeTypedNil(t *testing.T) {
+	var a struct {
+		Nullable *bool
+	}
+
+	ch := Cast(a, map[string]interface{}{}, []string{})
+	PutChange(ch, "nullable", (*bool)(nil))
+
+	assert.Nil(t, ch.Error())
+	assert.Equal(t, (*bool)(nil), ch.Changes()["nullable"])
 }
