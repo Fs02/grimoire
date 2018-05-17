@@ -38,3 +38,14 @@ func TestPutChange(t *testing.T) {
 	assert.Equal(t, 1, len(ch.Changes()))
 	assert.Equal(t, 10, ch.Changes()["field1"])
 }
+
+func TestPutChangeNil(t *testing.T) {
+	var a struct {
+		Bool *bool
+	}
+
+	ch := Cast(a, map[string]interface{}{}, []string{})
+	PutChange(ch, "bool", (*bool)(nil))
+
+	assert.Nil(t, ch.Error())
+}

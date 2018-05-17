@@ -15,7 +15,12 @@ func PutChange(ch *Changeset, field string, value interface{}, opts ...Option) {
 	}
 	options.apply(opts)
 
-	if typ, exist := ch.types[field]; exist && reflect.TypeOf(value).ConvertibleTo(typ) {
+	valTyp := reflect.TypeOf(value)
+	if valTyp.Kind() == reflect.Ptr {
+		valTyp = valTyp.Elem()
+	}
+
+	if typ, exist := ch.types[field]; exist && valTyp.ConvertibleTo(typ) {
 		ch.changes[field] = value
 	} else {
 		msg := strings.Replace(options.message, "{field}", field, 1)
