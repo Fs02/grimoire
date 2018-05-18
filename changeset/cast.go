@@ -10,19 +10,25 @@ import (
 // CastErrorMessage is the default error message for Cast.
 var CastErrorMessage = "{field} is invalid"
 
-// Cast params as changes for the given entity according to the given fields. Returns a new changeset.
-// params will only be added as changes if it does not have the same value as in the entity struct.
-func Cast(entity interface{}, params map[string]interface{}, fields []string, opts ...Option) *Changeset {
+// Cast params as changes for the given data according to the permitted fields. Returns a new changeset.
+// params will only be added as changes if it does not have the same value as the field in the data.
+func Cast(data interface{}, params map[string]interface{}, fields []string, opts ...Option) *Changeset {
 	options := Options{
 		message: CastErrorMessage,
 	}
 	options.apply(opts)
 
-	ch := &Changeset{}
-	ch.entity = entity
-	ch.params = params
-	ch.changes = make(map[string]interface{})
-	ch.values, ch.types = mapSchema(ch.entity)
+	var ch *Changeset
+	if existingCh, ok := data.(Changeset); ok {
+		ch = &existingCh
+	} else if existingCh, ok := data.(*Changeset); ok {
+		ch = existingCh
+	} else {
+		ch = &Changeset{}
+		ch.params = params
+		ch.changes = make(map[string]interface{})
+		ch.values, ch.types = mapSchema(data)
+	}
 
 	for _, f := range fields {
 		par, pexist := params[f]
@@ -59,18 +65,18 @@ func Cast(entity interface{}, params map[string]interface{}, fields []string, op
 	return ch
 }
 
-func mapSchema(entity interface{}) (map[string]interface{}, map[string]reflect.Type) {
+func mapSchema(data interface{}) (map[string]interface{}, map[string]reflect.Type) {
 	mvalues := make(map[string]interface{})
 	mtypes := make(map[string]reflect.Type)
 
-	rv := reflect.ValueOf(entity)
+	rv := reflect.ValueOf(data)
 	if rv.Kind() == reflect.Ptr {
 		rv = rv.Elem()
 	}
 	rt := rv.Type()
 
 	if rv.Kind() != reflect.Struct {
-		panic("entity must be a struct")
+		panic("data must be a struct")
 	}
 
 	for i := 0; i < rv.NumField(); i++ {

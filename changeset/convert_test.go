@@ -8,7 +8,7 @@ import (
 )
 
 func TestConvert(t *testing.T) {
-	var entity struct {
+	var data struct {
 		FIELD1 int `db:"field1"`
 		Field2 string
 		Field3 bool
@@ -26,7 +26,7 @@ func TestConvert(t *testing.T) {
 		"field3": reflect.TypeOf(false),
 	}
 
-	ch := Convert(entity)
+	ch := Convert(data)
 	assert.Nil(t, ch.Errors())
 	assert.Equal(t, expectedChanges, ch.Changes())
 	assert.Equal(t, expectedTypes, ch.types)
