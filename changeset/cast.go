@@ -11,6 +11,7 @@ import (
 var CastErrorMessage = "{field} is invalid"
 
 // Cast params as changes for the given entity according to the given fields. Returns a new changeset.
+// params will only be added as changes if it does not have the same value as in the entity struct.
 func Cast(entity interface{}, params map[string]interface{}, fields []string, opts ...Option) *Changeset {
 	options := Options{
 		message: CastErrorMessage,
