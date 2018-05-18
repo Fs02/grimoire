@@ -106,6 +106,43 @@ func TestCast(t *testing.T) {
 	assert.NotNil(t, ch.Values())
 }
 
+func TestCastUnchanged(t *testing.T) {
+	var entity struct {
+		Field1 int `db:"field1"`
+		Field2 string
+		Field3 bool
+		Field4 *bool
+	}
+
+	params := map[string]interface{}{
+		"field1": 0,
+		"field2": "",
+		"field3": false,
+		"field4": nil,
+	}
+
+	expectedChanges := map[string]interface{}{}
+
+	expectedTypes := map[string]reflect.Type{
+		"field1": reflect.TypeOf(0),
+		"field2": reflect.TypeOf(""),
+		"field3": reflect.TypeOf(false),
+		"field4": reflect.TypeOf(false),
+	}
+
+	expectedValues := map[string]interface{}{
+		"field1": 0,
+		"field2": "",
+		"field3": false,
+	}
+
+	ch := Cast(entity, params, []string{"field1", "field2", "field3", "field4"})
+	assert.Nil(t, ch.Errors())
+	assert.Equal(t, expectedChanges, ch.Changes())
+	assert.Equal(t, expectedTypes, ch.types)
+	assert.Equal(t, expectedValues, ch.values)
+}
+
 func TestCastError(t *testing.T) {
 	var entity struct {
 		Field1 int
@@ -263,7 +300,7 @@ func TestCastBasicWithValue(t *testing.T) {
 		Field14 float64
 		Field15 string
 	}{
-		true,
+		false,
 		1,
 		int8(1),
 		int16(1),
@@ -281,7 +318,7 @@ func TestCastBasicWithValue(t *testing.T) {
 	}
 
 	expectedValues := map[string]interface{}{
-		"field1":  true,
+		"field1":  false,
 		"field2":  1,
 		"field3":  int8(1),
 		"field4":  int16(1),
@@ -359,17 +396,15 @@ func TestCastPtr(t *testing.T) {
 		"field15",
 	})
 
-	expectedValues := map[string]interface{}{}
-
 	assert.Nil(t, ch.Errors())
 	assert.Equal(t, expectedChanges, ch.Changes())
-	assert.Equal(t, expectedValues, ch.values)
+	assert.Equal(t, map[string]interface{}{}, ch.values)
 	assert.Equal(t, expectedTypes, ch.types)
 }
 
 func TestCastPtrWithValue(t *testing.T) {
 	var (
-		vbool    = true
+		vbool    = false
 		vint     = int(1)
 		vint8    = int8(1)
 		vint16   = int16(1)
@@ -420,7 +455,7 @@ func TestCastPtrWithValue(t *testing.T) {
 	}
 
 	expectedValues := map[string]interface{}{
-		"field1":  true,
+		"field1":  false,
 		"field2":  1,
 		"field3":  int8(1),
 		"field4":  int16(1),

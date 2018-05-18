@@ -24,21 +24,29 @@ func Cast(entity interface{}, params map[string]interface{}, fields []string, op
 	ch.values, ch.types = mapSchema(ch.entity)
 
 	for _, f := range fields {
-		val, pexist := params[f]
+		par, pexist := params[f]
+		val, vexist := ch.values[f]
 		typ, texist := ch.types[f]
 		if pexist && texist {
-			if val != (interface{})(nil) {
-				valTyp := reflect.TypeOf(val)
-				if valTyp.Kind() == reflect.Ptr {
-					valTyp = valTyp.Elem()
+			if vexist && typ.Kind() != reflect.Slice && par == val {
+				// do nothing is params value is equal to struct data.
+				continue
+			} else if par != (interface{})(nil) {
+				// cast value from param if not nil.
+				parTyp := reflect.TypeOf(par)
+				if parTyp.Kind() == reflect.Ptr {
+					parTyp = parTyp.Elem()
 				}
 
-				if valTyp.ConvertibleTo(typ) {
-					ch.changes[f] = val
+				if parTyp.ConvertibleTo(typ) {
+					ch.changes[f] = par
 					continue
 				}
 			} else {
-				ch.changes[f] = reflect.Zero(reflect.PtrTo(typ)).Interface()
+				// create nil for the respected type if current value is not nil.
+				if ch.values[f] != nil {
+					ch.changes[f] = reflect.Zero(reflect.PtrTo(typ)).Interface()
+				}
 				continue
 			}
 
