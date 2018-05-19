@@ -106,6 +106,54 @@ func TestCast(t *testing.T) {
 	assert.NotNil(t, ch.Values())
 }
 
+func TestCastExistingChangeset(t *testing.T) {
+	var data struct {
+		Field1 int `db:"field1"`
+		Field2 string
+		Field3 bool
+	}
+
+	params := map[string]interface{}{
+		"field1": 1,
+		"field2": "2",
+		"field3": true,
+		"field4": "ignore please",
+	}
+
+	expectedChanges := map[string]interface{}{
+		"field1": 1,
+		"field2": "2",
+		"field3": true,
+	}
+
+	expectedTypes := map[string]reflect.Type{
+		"field1": reflect.TypeOf(0),
+		"field2": reflect.TypeOf(""),
+		"field3": reflect.TypeOf(false),
+	}
+
+	expectedValues := map[string]interface{}{
+		"field1": 0,
+		"field2": "",
+		"field3": false,
+	}
+
+	ch := Cast(data, params, []string{})
+	assert.Nil(t, ch.Errors())
+	assert.Equal(t, 0, len(ch.Changes()))
+
+	ch = Cast(ch, params, []string{"field1", "field2"})
+	assert.Nil(t, ch.Errors())
+	assert.Equal(t, 2, len(ch.Changes()))
+
+	ch = Cast(*ch, params, []string{"field1", "field3"})
+	assert.Nil(t, ch.Errors())
+	assert.Equal(t, 3, len(ch.Changes()))
+	assert.Equal(t, expectedChanges, ch.Changes())
+	assert.Equal(t, expectedTypes, ch.types)
+	assert.Equal(t, expectedValues, ch.values)
+}
+
 func TestCastUnchanged(t *testing.T) {
 	var data struct {
 		Field1 int `db:"field1"`
