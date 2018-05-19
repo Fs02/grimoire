@@ -31,13 +31,13 @@ func Cast(data interface{}, params map[string]interface{}, fields []string, opts
 	}
 
 	for _, f := range fields {
-		castFields(ch, f, params, options)
+		castField(ch, f, params, options)
 	}
 
 	return ch
 }
 
-func castFields(ch *Changeset, field string, params map[string]interface{}, options Options) {
+func castField(ch *Changeset, field string, params map[string]interface{}, options Options) {
 	par, pexist := params[field]
 	val, vexist := ch.values[field]
 	typ, texist := ch.types[field]
