@@ -30,6 +30,12 @@ func Cast(data interface{}, params map[string]interface{}, fields []string, opts
 		ch.values, ch.types = mapSchema(data)
 	}
 
+	castFields(ch, params, fields, options)
+
+	return ch
+}
+
+func castFields(ch *Changeset, params map[string]interface{}, fields []string, options Options) {
 	for _, f := range fields {
 		par, pexist := params[f]
 		val, vexist := ch.values[f]
@@ -61,8 +67,6 @@ func Cast(data interface{}, params map[string]interface{}, fields []string, opts
 			AddError(ch, f, msg)
 		}
 	}
-
-	return ch
 }
 
 func mapSchema(data interface{}) (map[string]interface{}, map[string]reflect.Type) {
