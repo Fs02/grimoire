@@ -42,10 +42,7 @@ func castField(ch *Changeset, field string, params map[string]interface{}, optio
 	val, vexist := ch.values[field]
 	typ, texist := ch.types[field]
 	if pexist && texist {
-		if vexist && typ.Kind() != reflect.Slice && par == val {
-			// do nothing is params value is equal to struct data.
-			return
-		} else if par != (interface{})(nil) {
+		if par != (interface{})(nil) {
 			// cast value from param if not nil.
 			parTyp := reflect.TypeOf(par)
 			parVal := reflect.ValueOf(par)
@@ -57,7 +54,7 @@ func castField(ch *Changeset, field string, params map[string]interface{}, optio
 			if parTyp.ConvertibleTo(typ) {
 				if parVal.IsValid() {
 					cpar := parVal.Convert(typ).Interface()
-					if typ.Kind() == reflect.Slice || cpar != val {
+					if typ.Kind() == reflect.Slice || !vexist || (vexist && cpar != val) {
 						ch.changes[field] = cpar
 					}
 				} else {
