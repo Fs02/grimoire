@@ -48,12 +48,21 @@ func castField(ch *Changeset, field string, params map[string]interface{}, optio
 		} else if par != (interface{})(nil) {
 			// cast value from param if not nil.
 			parTyp := reflect.TypeOf(par)
+			parVal := reflect.ValueOf(par)
 			if parTyp.Kind() == reflect.Ptr {
 				parTyp = parTyp.Elem()
+				parVal = parVal.Elem()
 			}
 
 			if parTyp.ConvertibleTo(typ) {
-				ch.changes[field] = par
+				if parVal.IsValid() {
+					cpar := parVal.Convert(typ).Interface()
+					if typ.Kind() == reflect.Slice || cpar != val {
+						ch.changes[field] = cpar
+					}
+				} else {
+					ch.changes[field] = reflect.Zero(reflect.PtrTo(typ)).Interface()
+				}
 				return
 			}
 		} else {
