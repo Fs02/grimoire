@@ -41,38 +41,41 @@ func castField(ch *Changeset, field string, params map[string]interface{}, optio
 	par, pexist := params[field]
 	val, vexist := ch.values[field]
 	typ, texist := ch.types[field]
-	if pexist && texist {
-		if par != (interface{})(nil) {
-			// cast value from param if not nil.
-			parTyp := reflect.TypeOf(par)
-			parVal := reflect.ValueOf(par)
-			if parTyp.Kind() == reflect.Ptr {
-				parTyp = parTyp.Elem()
-				parVal = parVal.Elem()
-			}
 
-			if parTyp.ConvertibleTo(typ) {
-				if parVal.IsValid() {
-					cpar := parVal.Convert(typ).Interface()
-					if typ.Kind() == reflect.Slice || !vexist || (vexist && cpar != val) {
-						ch.changes[field] = cpar
-					}
-				} else {
-					ch.changes[field] = reflect.Zero(reflect.PtrTo(typ)).Interface()
+	if !pexist || !texist {
+		return
+	}
+
+	if par != (interface{})(nil) {
+		// cast value from param if not nil.
+		parTyp := reflect.TypeOf(par)
+		parVal := reflect.ValueOf(par)
+		if parTyp.Kind() == reflect.Ptr {
+			parTyp = parTyp.Elem()
+			parVal = parVal.Elem()
+		}
+
+		if parTyp.ConvertibleTo(typ) {
+			if parVal.IsValid() {
+				cpar := parVal.Convert(typ).Interface()
+				if typ.Kind() == reflect.Slice || !vexist || (vexist && cpar != val) {
+					ch.changes[field] = cpar
 				}
-				return
-			}
-		} else {
-			// create nil for the respected type if current value is not nil.
-			if ch.values[field] != nil {
+			} else {
 				ch.changes[field] = reflect.Zero(reflect.PtrTo(typ)).Interface()
 			}
 			return
 		}
-
-		msg := strings.Replace(options.message, "{field}", field, 1)
-		AddError(ch, field, msg)
+	} else {
+		// create nil for the respected type if current value is not nil.
+		if ch.values[field] != nil {
+			ch.changes[field] = reflect.Zero(reflect.PtrTo(typ)).Interface()
+		}
+		return
 	}
+
+	msg := strings.Replace(options.message, "{field}", field, 1)
+	AddError(ch, field, msg)
 }
 
 func mapSchema(data interface{}) (map[string]interface{}, map[string]reflect.Type) {
