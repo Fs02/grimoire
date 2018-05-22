@@ -423,20 +423,41 @@ func (query Query) Preload(record interface{}, field string) error {
 	addrs := make(map[interface{}][]reflect.Value)
 	ids := []interface{}{}
 
-	for _, pre := range preload {
-		id := getPreloadID(pre.schema.FieldByIndex(refIndex))
+	for i := range preload {
+		refv := preload[i].schema.FieldByIndex(refIndex)
+		fv := preload[i].field
 
-		// reset to zero if slice.
-		if pre.field.Kind() == reflect.Slice || pre.field.Kind() == reflect.Array {
-			pre.field.Set(reflect.Zero(pre.field.Type()))
+		// Skip if nil
+		if refv.Kind() == reflect.Ptr && refv.IsNil() {
+			continue
 		}
 
-		addrs[id] = append(addrs[id], pre.field)
+		id := getPreloadID(refv)
+
+		// Create if ptr
+		if fv.Kind() == reflect.Ptr {
+			typ := fv.Type().Elem()
+			fv.Set(reflect.New(typ))
+
+			fv = fv.Elem()
+			preload[i].field = fv
+		}
+
+		// reset to zero if slice.
+		if fv.Kind() == reflect.Slice || fv.Kind() == reflect.Array {
+			fv.Set(reflect.Zero(fv.Type()))
+		}
+
+		addrs[id] = append(addrs[id], fv)
 
 		// add to ids if not yet added.
 		if len(addrs[id]) == 1 {
 			ids = append(ids, id)
 		}
+	}
+
+	if len(ids) == 0 {
+		return nil
 	}
 
 	// prepare temp result variable for querying
@@ -496,12 +517,7 @@ func traversePreloadTarget(rv reflect.Value, path []string) []preloadTarget {
 		panic("grimoire: field (" + path[0] + ") is not a struct, a slice or a pointer.")
 	}
 
-	if fv.Kind() == reflect.Ptr {
-		if len(path) == 1 && fv.IsNil() {
-			typ := fv.Type().Elem()
-			fv.Set(reflect.New(typ))
-		}
-
+	if fv.Kind() == reflect.Ptr && len(path) != 1 {
 		fv = fv.Elem()
 	}
 
