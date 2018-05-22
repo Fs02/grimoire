@@ -419,43 +419,7 @@ func (query Query) Preload(record interface{}, field string) error {
 	schemaType := preload[0].schema.Type()
 	refIndex, fkIndex, column := getPreloadInfo(schemaType, path[len(path)-1])
 
-	// collect ids.
-	addrs := make(map[interface{}][]reflect.Value)
-	ids := []interface{}{}
-
-	for i := range preload {
-		refv := preload[i].schema.FieldByIndex(refIndex)
-		fv := preload[i].field
-
-		// Skip if nil
-		if refv.Kind() == reflect.Ptr && refv.IsNil() {
-			continue
-		}
-
-		id := getPreloadID(refv)
-
-		// Create if ptr
-		if fv.Kind() == reflect.Ptr {
-			typ := fv.Type().Elem()
-			fv.Set(reflect.New(typ))
-
-			fv = fv.Elem()
-			preload[i].field = fv
-		}
-
-		// reset to zero if slice.
-		if fv.Kind() == reflect.Slice || fv.Kind() == reflect.Array {
-			fv.Set(reflect.Zero(fv.Type()))
-		}
-
-		addrs[id] = append(addrs[id], fv)
-
-		// add to ids if not yet added.
-		if len(addrs[id]) == 1 {
-			ids = append(ids, id)
-		}
-	}
-
+	addrs, ids := collectPreloadTarget(preload, refIndex)
 	if len(ids) == 0 {
 		return nil
 	}
@@ -577,6 +541,46 @@ func getPreloadInfo(rt reflect.Type, field string) ([]int, []int, string) {
 	}
 
 	return refIndex, fkIndex, column
+}
+
+func collectPreloadTarget(preload []preloadTarget, refIndex []int) (map[interface{}][]reflect.Value, []interface{}) {
+	addrs := make(map[interface{}][]reflect.Value)
+	ids := []interface{}{}
+
+	for i := range preload {
+		refv := preload[i].schema.FieldByIndex(refIndex)
+		fv := preload[i].field
+
+		// Skip if nil
+		if refv.Kind() == reflect.Ptr && refv.IsNil() {
+			continue
+		}
+
+		id := getPreloadID(refv)
+
+		// Create if ptr
+		if fv.Kind() == reflect.Ptr {
+			typ := fv.Type().Elem()
+			fv.Set(reflect.New(typ))
+
+			fv = fv.Elem()
+			preload[i].field = fv
+		}
+
+		// reset to zero if slice.
+		if fv.Kind() == reflect.Slice || fv.Kind() == reflect.Array {
+			fv.Set(reflect.Zero(fv.Type()))
+		}
+
+		addrs[id] = append(addrs[id], fv)
+
+		// add to ids if not yet added.
+		if len(addrs[id]) == 1 {
+			ids = append(ids, id)
+		}
+	}
+
+	return addrs, ids
 }
 
 func getPreloadID(fv reflect.Value) interface{} {
