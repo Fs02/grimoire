@@ -14,7 +14,6 @@ import (
 // User defines users schema.
 type User struct {
 	ID        int64
-	Slug      *string
 	Name      string
 	Gender    string
 	Age       int
@@ -34,10 +33,17 @@ type Address struct {
 	UpdatedAt time.Time
 }
 
+// Baz defines baz schema.
+type Baz struct {
+	ID   uint
+	Slug *string
+}
+
 // User table identifiers
 const (
 	users     = "users"
 	addresses = "addresses"
+	bazs      = "bazs"
 	id        = c.I("id")
 	name      = c.I("name")
 	gender    = c.I("gender")
@@ -47,7 +53,7 @@ const (
 	address   = c.I("address")
 )
 
-func checkConstraint(t *testing.T, err error, code int, field string) {
+func assertConstraint(t *testing.T, err error, code int, field string) {
 	assert.NotNil(t, err)
 	gerr, _ := err.(errors.Error)
 	assert.True(t, strings.Contains(gerr.Field, field))

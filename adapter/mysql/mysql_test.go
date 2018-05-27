@@ -14,6 +14,8 @@ func init() {
 	adapter, err := Open(dsn())
 	paranoid.Panic(err, "failed to open database connection")
 
+	_, _, err = adapter.Exec(`DROP TABLE IF EXISTS bazs;`, nil)
+	paranoid.Panic(err, "failed dropping bazs table")
 	_, _, err = adapter.Exec(`DROP TABLE IF EXISTS addresses;`, nil)
 	paranoid.Panic(err, "failed dropping addresses table")
 	_, _, err = adapter.Exec(`DROP TABLE IF EXISTS users;`, nil)
@@ -21,14 +23,12 @@ func init() {
 
 	_, _, err = adapter.Exec(`CREATE TABLE users (
 		id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-		slug VARCHAR(30) DEFAULT NULL,
 		name VARCHAR(30) NOT NULL,
 		gender VARCHAR(10) NOT NULL,
 		age INT NOT NULL,
 		note varchar(50),
 		created_at DATETIME,
-		updated_at DATETIME,
-		UNIQUE (slug)
+		updated_at DATETIME
 	);`, nil)
 	paranoid.Panic(err, "failed creating users table")
 
@@ -41,6 +41,13 @@ func init() {
 		FOREIGN KEY (user_id) REFERENCES users(id)
 	);`, nil)
 	paranoid.Panic(err, "failed creating addresses table")
+
+	_, _, err = adapter.Exec(`CREATE TABLE bazs (
+		id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+		slug VARCHAR(30) DEFAULT NULL UNIQUE
+	);`, nil)
+
+	paranoid.Panic(err, "failed creating baz table")
 }
 
 func dsn() string {

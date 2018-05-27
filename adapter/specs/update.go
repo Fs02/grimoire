@@ -107,10 +107,10 @@ func UpdateSet(t *testing.T, repo grimoire.Repo) {
 
 // UpdateConstraint tests update constraint specifications.
 func UpdateConstraint(t *testing.T, repo grimoire.Repo) {
-	user := User{}
-	repo.From(users).MustSave(&user)
+	baz := Baz{}
+	repo.From(bazs).MustSave(&baz)
 
-	repo.From(users).Set("slug", "update-taken").MustInsert(nil)
+	repo.From(bazs).Set("slug", "update-taken").MustInsert(nil)
 
 	tests := []struct {
 		name  string
@@ -118,12 +118,12 @@ func UpdateConstraint(t *testing.T, repo grimoire.Repo) {
 		field string
 		code  int
 	}{
-		{"UniqueConstraintError", repo.From(users).Find(user.ID).Set("slug", "update-taken"), "slug", errors.UniqueConstraintErrorCode},
+		{"UniqueConstraint", repo.From(bazs).Find(baz.ID).Set("slug", "update-taken"), "slug", errors.UniqueConstraintErrorCode},
 	}
 
 	for _, test := range tests {
 		t.Run("UpdateConstraint|"+test.name, func(t *testing.T) {
-			checkConstraint(t, test.query.Insert(nil), test.code, test.field)
+			assertConstraint(t, test.query.Update(nil), test.code, test.field)
 		})
 	}
 }

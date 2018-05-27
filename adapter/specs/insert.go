@@ -114,7 +114,7 @@ func InsertSet(t *testing.T, repo grimoire.Repo) {
 
 // InsertConstraint tests insert constraint specifications.
 func InsertConstraint(t *testing.T, repo grimoire.Repo) {
-	repo.From(users).Set("slug", "insert-taken").MustInsert(nil)
+	repo.From(bazs).Set("slug", "insert-taken").MustInsert(nil)
 
 	tests := []struct {
 		name  string
@@ -122,12 +122,12 @@ func InsertConstraint(t *testing.T, repo grimoire.Repo) {
 		field string
 		code  int
 	}{
-		{"UniqueConstraintError", repo.From(users).Set("slug", "insert-taken"), "slug", errors.UniqueConstraintErrorCode},
+		{"UniqueConstraint", repo.From(bazs).Set("slug", "insert-taken"), "slug", errors.UniqueConstraintErrorCode},
 	}
 
 	for _, test := range tests {
 		t.Run("InsertConstraint|"+test.name, func(t *testing.T) {
-			checkConstraint(t, test.query.Insert(nil), test.code, test.field)
+			assertConstraint(t, test.query.Insert(nil), test.code, test.field)
 		})
 	}
 }
