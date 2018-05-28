@@ -24,7 +24,7 @@ func Delete(t *testing.T, repo grimoire.Repo) {
 	}
 
 	for _, query := range tests {
-		statement, _ := sql.NewBuilder("?", false).Delete(query.Collection, query.Condition)
+		statement, _ := sql.NewBuilder("?", false, false).Delete(query.Collection, query.Condition)
 		t.Run("Delete|"+statement, func(t *testing.T) {
 			var result []User
 			assert.Nil(t, query.All(&result))

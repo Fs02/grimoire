@@ -22,18 +22,18 @@ import (
 	"github.com/lib/pq"
 )
 
-// Adapter definition for mysql database.
+// Adapter definition for postgrees database.
 type Adapter struct {
 	*sql.Adapter
 }
 
 var _ grimoire.Adapter = (*Adapter)(nil)
 
-// Open mysql connection using dsn.
+// Open postgrees connection using dsn.
 func Open(dsn string) (*Adapter, error) {
 	var err error
 
-	adapter := &Adapter{sql.New("$", true, errorFunc, nil)}
+	adapter := &Adapter{sql.New("$", true, true, errorFunc, nil)}
 	adapter.DB, err = db.Open("postgres", dsn)
 
 	return adapter, err
@@ -41,7 +41,7 @@ func Open(dsn string) (*Adapter, error) {
 
 // Insert inserts a record to database and returns its id.
 func (adapter *Adapter) Insert(query grimoire.Query, changes map[string]interface{}, loggers ...grimoire.Logger) (interface{}, error) {
-	statement, args := sql.NewBuilder(adapter.Placeholder, adapter.Ordinal).
+	statement, args := sql.NewBuilder(adapter.Placeholder, adapter.Ordinal, adapter.InsertDefaultValues).
 		Returning("id").
 		Insert(query.Collection, changes)
 
@@ -55,7 +55,7 @@ func (adapter *Adapter) Insert(query grimoire.Query, changes map[string]interfac
 
 // InsertAll inserts multiple records to database and returns its ids.
 func (adapter *Adapter) InsertAll(query grimoire.Query, fields []string, allchanges []map[string]interface{}, loggers ...grimoire.Logger) ([]interface{}, error) {
-	statement, args := sql.NewBuilder(adapter.Placeholder, adapter.Ordinal).Returning("id").InsertAll(query.Collection, fields, allchanges)
+	statement, args := sql.NewBuilder(adapter.Placeholder, adapter.Ordinal, adapter.InsertDefaultValues).Returning("id").InsertAll(query.Collection, fields, allchanges)
 
 	var result []struct {
 		ID int64

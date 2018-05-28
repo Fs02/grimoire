@@ -33,7 +33,7 @@ var _ grimoire.Adapter = (*Adapter)(nil)
 func Open(dsn string) (*Adapter, error) {
 	var err error
 
-	adapter := &Adapter{sql.New("?", false, errorFunc, incrementFunc)}
+	adapter := &Adapter{sql.New("?", false, true, errorFunc, incrementFunc)}
 	adapter.DB, err = db.Open("sqlite3", dsn)
 
 	return adapter, err

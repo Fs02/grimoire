@@ -11,25 +11,16 @@ import (
 
 // Adapter definition for mysql database.
 type Adapter struct {
-	Placeholder   string
-	Ordinal       bool
-	ErrorFunc     func(error) error
-	IncrementFunc func(Adapter) int
-	DB            *sql.DB
-	Tx            *sql.Tx
+	Placeholder         string
+	Ordinal             bool
+	InsertDefaultValues bool
+	ErrorFunc           func(error) error
+	IncrementFunc       func(Adapter) int
+	DB                  *sql.DB
+	Tx                  *sql.Tx
 }
 
 var _ grimoire.Adapter = (*Adapter)(nil)
-
-// New initialize adapter without db.
-func New(placeholder string, ordinal bool, errfn func(error) error, incfn func(Adapter) int) *Adapter {
-	return &Adapter{
-		Placeholder:   placeholder,
-		Ordinal:       ordinal,
-		ErrorFunc:     errfn,
-		IncrementFunc: incfn,
-	}
-}
 
 // Close mysql connection.
 func (adapter *Adapter) Close() error {
@@ -43,28 +34,28 @@ func (adapter *Adapter) Count(query grimoire.Query, loggers ...grimoire.Logger) 
 	}
 
 	query.Fields = []string{"COUNT(*) AS count"}
-	statement, args := NewBuilder(adapter.Placeholder, adapter.Ordinal).Find(query)
+	statement, args := NewBuilder(adapter.Placeholder, adapter.Ordinal, adapter.InsertDefaultValues).Find(query)
 	_, err := adapter.Query(&doc, statement, args, loggers...)
 	return doc.Count, err
 }
 
 // All retrieves all record that match the query.
 func (adapter *Adapter) All(query grimoire.Query, doc interface{}, loggers ...grimoire.Logger) (int, error) {
-	statement, args := NewBuilder(adapter.Placeholder, adapter.Ordinal).Find(query)
+	statement, args := NewBuilder(adapter.Placeholder, adapter.Ordinal, adapter.InsertDefaultValues).Find(query)
 	count, err := adapter.Query(doc, statement, args, loggers...)
 	return int(count), err
 }
 
 // Insert inserts a record to database and returns its id.
 func (adapter *Adapter) Insert(query grimoire.Query, changes map[string]interface{}, loggers ...grimoire.Logger) (interface{}, error) {
-	statement, args := NewBuilder(adapter.Placeholder, adapter.Ordinal).Insert(query.Collection, changes)
+	statement, args := NewBuilder(adapter.Placeholder, adapter.Ordinal, adapter.InsertDefaultValues).Insert(query.Collection, changes)
 	id, _, err := adapter.Exec(statement, args, loggers...)
 	return id, err
 }
 
 // InsertAll inserts all record to database and returns its ids.
 func (adapter *Adapter) InsertAll(query grimoire.Query, fields []string, allchanges []map[string]interface{}, loggers ...grimoire.Logger) ([]interface{}, error) {
-	statement, args := NewBuilder(adapter.Placeholder, adapter.Ordinal).InsertAll(query.Collection, fields, allchanges)
+	statement, args := NewBuilder(adapter.Placeholder, adapter.Ordinal, adapter.InsertDefaultValues).InsertAll(query.Collection, fields, allchanges)
 	id, _, err := adapter.Exec(statement, args, loggers...)
 	if err != nil {
 		return nil, err
@@ -86,14 +77,14 @@ func (adapter *Adapter) InsertAll(query grimoire.Query, fields []string, allchan
 
 // Update updates a record in database.
 func (adapter *Adapter) Update(query grimoire.Query, changes map[string]interface{}, loggers ...grimoire.Logger) error {
-	statement, args := NewBuilder(adapter.Placeholder, adapter.Ordinal).Update(query.Collection, changes, query.Condition)
+	statement, args := NewBuilder(adapter.Placeholder, adapter.Ordinal, adapter.InsertDefaultValues).Update(query.Collection, changes, query.Condition)
 	_, _, err := adapter.Exec(statement, args, loggers...)
 	return err
 }
 
 // Delete deletes all results that match the query.
 func (adapter *Adapter) Delete(query grimoire.Query, loggers ...grimoire.Logger) error {
-	statement, args := NewBuilder(adapter.Placeholder, adapter.Ordinal).Delete(query.Collection, query.Condition)
+	statement, args := NewBuilder(adapter.Placeholder, adapter.Ordinal, adapter.InsertDefaultValues).Delete(query.Collection, query.Condition)
 	_, _, err := adapter.Exec(statement, args, loggers...)
 	return err
 }
@@ -174,4 +165,15 @@ func (adapter *Adapter) Exec(statement string, args []interface{}, loggers ...gr
 	rowCount, _ := res.RowsAffected()
 
 	return lastID, rowCount, nil
+}
+
+// New initialize adapter without db.
+func New(placeholder string, ordinal bool, insertDefaultValues bool, errfn func(error) error, incfn func(Adapter) int) *Adapter {
+	return &Adapter{
+		Placeholder:         placeholder,
+		Ordinal:             ordinal,
+		InsertDefaultValues: insertDefaultValues,
+		ErrorFunc:           errfn,
+		IncrementFunc:       incfn,
+	}
 }
