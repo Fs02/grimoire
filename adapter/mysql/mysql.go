@@ -57,9 +57,15 @@ func incrementFunc(adapter sql.Adapter) int {
 func errorFunc(err error) error {
 	if err == nil {
 		return nil
-	} else if e, ok := err.(*mysql.MySQLError); ok && e.Number == 1062 {
-		return errors.UniqueConstraintError(e.Message, internal.ExtractString(e.Message, "key '", "'"))
 	}
 
-	return err
+	e, _ := err.(*mysql.MySQLError)
+	switch e.Number {
+	case 1062:
+		return errors.UniqueConstraintError(e.Message, internal.ExtractString(e.Message, "key '", "'"))
+	case 1452:
+		return errors.UniqueConstraintError(e.Message, internal.ExtractString(e.Message, "CONSTRAINT `", "`"))
+	default:
+		return err
+	}
 }

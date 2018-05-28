@@ -7,7 +7,6 @@ import (
 	"github.com/Fs02/grimoire/adapter/sql"
 	"github.com/Fs02/grimoire/c"
 	"github.com/Fs02/grimoire/changeset"
-	"github.com/Fs02/grimoire/errors"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -101,29 +100,6 @@ func UpdateSet(t *testing.T, repo grimoire.Repo) {
 		t.Run("Update|"+statement, func(t *testing.T) {
 			assert.Nil(t, test.query.Update(nil))
 			assert.Nil(t, test.query.Update(test.record))
-		})
-	}
-}
-
-// UpdateConstraint tests update constraint specifications.
-func UpdateConstraint(t *testing.T, repo grimoire.Repo) {
-	baz := Baz{}
-	repo.From(bazs).MustSave(&baz)
-
-	repo.From(bazs).Set("slug", "update-taken").MustInsert(nil)
-
-	tests := []struct {
-		name  string
-		query grimoire.Query
-		field string
-		code  int
-	}{
-		{"UniqueConstraint", repo.From(bazs).Find(baz.ID).Set("slug", "update-taken"), "slug", errors.UniqueConstraintErrorCode},
-	}
-
-	for _, test := range tests {
-		t.Run("UpdateConstraint|"+test.name, func(t *testing.T) {
-			assertConstraint(t, test.query.Update(nil), test.code, test.field)
 		})
 	}
 }

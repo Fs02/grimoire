@@ -33,8 +33,8 @@ type Address struct {
 	UpdatedAt time.Time
 }
 
-// Baz defines baz schema.
-type Baz struct {
+// Extra defines baz schema.
+type Extra struct {
 	ID   uint
 	Slug *string
 }
@@ -43,7 +43,7 @@ type Baz struct {
 const (
 	users     = "users"
 	addresses = "addresses"
-	bazs      = "bazs"
+	extras    = "extras"
 	id        = c.I("id")
 	name      = c.I("name")
 	gender    = c.I("gender")

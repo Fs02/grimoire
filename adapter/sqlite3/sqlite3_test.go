@@ -15,8 +15,8 @@ func init() {
 	paranoid.Panic(err, "failed to open database connection")
 	defer adapter.Close()
 
-	_, _, err = adapter.Exec(`DROP TABLE IF EXISTS bazs;`, nil)
-	paranoid.Panic(err, "failed when dropping bazs table")
+	_, _, err = adapter.Exec(`DROP TABLE IF EXISTS extras;`, nil)
+	paranoid.Panic(err, "failed when dropping extras table")
 	_, _, err = adapter.Exec(`DROP TABLE IF EXISTS addresses;`, nil)
 	paranoid.Panic(err, "failed when dropping addresses table")
 	_, _, err = adapter.Exec(`DROP TABLE IF EXISTS users;`, nil)
@@ -45,20 +45,21 @@ func init() {
 	);`, nil)
 	paranoid.Panic(err, "failed when creating addresses table")
 
-	_, _, err = adapter.Exec(`CREATE TABLE bazs (
+	_, _, err = adapter.Exec(`CREATE TABLE extras (
 		id INTEGER PRIMARY KEY,
-		slug VARCHAR(30) DEFAULT NULL,
-		UNIQUE (slug)
+		slug VARCHAR(30) DEFAULT NULL UNIQUE,
+		user_id INTEGER,
+		FOREIGN KEY (user_id) REFERENCES users(id)
 	);`, nil)
-	paranoid.Panic(err, "failed when creating bazs table")
+	paranoid.Panic(err, "failed when creating extras table")
 }
 
 func dsn() string {
 	if os.Getenv("SQLITE3_DATABASE") != "" {
-		return os.Getenv("SQLITE3_DATABASE")
+		return os.Getenv("SQLITE3_DATABASE") + "?_foreign_keys=1"
 	}
 
-	return "./grimoire_test.db"
+	return "./grimoire_test.db?_foreign_keys=1"
 }
 
 func TestSpecs(t *testing.T) {
@@ -83,13 +84,11 @@ func TestSpecs(t *testing.T) {
 	specs.Insert(t, repo)
 	specs.InsertAll(t, repo)
 	specs.InsertSet(t, repo)
-	specs.InsertConstraint(t, repo)
 
 	// Update Specs
 	specs.Update(t, repo)
 	specs.UpdateWhere(t, repo)
 	specs.UpdateSet(t, repo)
-	specs.UpdateConstraint(t, repo)
 
 	// Put Specs
 	specs.SaveInsert(t, repo)
@@ -101,6 +100,10 @@ func TestSpecs(t *testing.T) {
 
 	// Transaction specs
 	specs.Transaction(t, repo)
+
+	// Constraint specs
+	// - foreign key constraint is not supported because of lack of information in the error message.
+	specs.UniqueConstraint(t, repo)
 }
 
 func TestAdapterInsertAllError(t *testing.T) {

@@ -89,9 +89,15 @@ func (adapter *Adapter) Begin() (grimoire.Adapter, error) {
 func errorFunc(err error) error {
 	if err == nil {
 		return nil
-	} else if e, ok := err.(*pq.Error); ok && e.Code == "23505" {
-		return errors.UniqueConstraintError(e.Message, internal.ExtractString(e.Message, "constraint \"", "\""))
 	}
 
-	return err
+	e, _ := err.(*pq.Error)
+	switch e.Code {
+	case "23505":
+		return errors.UniqueConstraintError(e.Message, internal.ExtractString(e.Message, "constraint \"", "\""))
+	case "23503":
+		return errors.UniqueConstraintError(e.Message, internal.ExtractString(e.Message, "constraint \"", "\""))
+	default:
+		return err
+	}
 }

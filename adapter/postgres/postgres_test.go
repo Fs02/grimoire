@@ -15,8 +15,8 @@ func init() {
 	paranoid.Panic(err, "failed to open database connection")
 	defer adapter.Close()
 
-	_, _, err = adapter.Exec(`DROP TABLE IF EXISTS bazs;`, nil)
-	paranoid.Panic(err, "failed dropping bazs table")
+	_, _, err = adapter.Exec(`DROP TABLE IF EXISTS extras;`, nil)
+	paranoid.Panic(err, "failed dropping extras table")
 	_, _, err = adapter.Exec(`DROP TABLE IF EXISTS addresses;`, nil)
 	paranoid.Panic(err, "failed dropping addresses table")
 	_, _, err = adapter.Exec(`DROP TABLE IF EXISTS users;`, nil)
@@ -44,12 +44,12 @@ func init() {
 	);`, nil)
 	paranoid.Panic(err, "failed creating addresses table")
 
-	_, _, err = adapter.Exec(`CREATE TABLE bazs (
+	_, _, err = adapter.Exec(`CREATE TABLE extras (
 		id SERIAL NOT NULL PRIMARY KEY,
-		slug VARCHAR(30) DEFAULT NULL,
-		UNIQUE(slug)
+		slug VARCHAR(30) DEFAULT NULL UNIQUE,
+		user_id INTEGER REFERENCES users(id)
 	);`, nil)
-	paranoid.Panic(err, "failed creating bazs table")
+	paranoid.Panic(err, "failed creating extras table")
 }
 
 func dsn() string {
@@ -82,13 +82,11 @@ func TestSpecs(t *testing.T) {
 	specs.Insert(t, repo)
 	specs.InsertAll(t, repo)
 	specs.InsertSet(t, repo)
-	specs.InsertConstraint(t, repo)
 
 	// Update Specs
 	specs.Update(t, repo)
 	specs.UpdateWhere(t, repo)
 	specs.UpdateSet(t, repo)
-	specs.UpdateConstraint(t, repo)
 
 	// Put Specs
 	specs.SaveInsert(t, repo)
@@ -100,6 +98,10 @@ func TestSpecs(t *testing.T) {
 
 	// Transaction specs
 	specs.Transaction(t, repo)
+
+	// Constraint specs
+	specs.UniqueConstraint(t, repo)
+	specs.ForeignKeyConstraint(t, repo)
 }
 
 func TestAdapterInsertAllError(t *testing.T) {

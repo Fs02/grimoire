@@ -8,7 +8,6 @@ import (
 	"github.com/Fs02/grimoire"
 	"github.com/Fs02/grimoire/adapter/sql"
 	"github.com/Fs02/grimoire/changeset"
-	"github.com/Fs02/grimoire/errors"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -108,26 +107,6 @@ func InsertSet(t *testing.T, repo grimoire.Repo) {
 		t.Run("InsertSet|"+statement, func(t *testing.T) {
 			assert.Nil(t, test.query.Insert(nil))
 			assert.Nil(t, test.query.Insert(test.record))
-		})
-	}
-}
-
-// InsertConstraint tests insert constraint specifications.
-func InsertConstraint(t *testing.T, repo grimoire.Repo) {
-	repo.From(bazs).Set("slug", "insert-taken").MustInsert(nil)
-
-	tests := []struct {
-		name  string
-		query grimoire.Query
-		field string
-		code  int
-	}{
-		{"UniqueConstraint", repo.From(bazs).Set("slug", "insert-taken"), "slug", errors.UniqueConstraintErrorCode},
-	}
-
-	for _, test := range tests {
-		t.Run("InsertConstraint|"+test.name, func(t *testing.T) {
-			assertConstraint(t, test.query.Insert(nil), test.code, test.field)
 		})
 	}
 }
