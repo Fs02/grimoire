@@ -97,6 +97,8 @@ func errorFunc(err error) error {
 		return errors.UniqueConstraintError(e.Message, internal.ExtractString(e.Message, "constraint \"", "\""))
 	case "23503":
 		return errors.UniqueConstraintError(e.Message, internal.ExtractString(e.Message, "constraint \"", "\""))
+	case "23514":
+		return errors.UniqueConstraintError(e.Message, internal.ExtractString(e.Message, "constraint \"", "\""))
 	default:
 		return err
 	}

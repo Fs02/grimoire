@@ -46,6 +46,7 @@ func init() {
 		id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
 		slug VARCHAR(30) DEFAULT NULL UNIQUE,
 		user_id INT UNSIGNED,
+		SCORE INT,
 		CONSTRAINT extras_user_id_fk FOREIGN KEY (user_id) REFERENCES users(id)
 	);`, nil)
 
@@ -100,6 +101,7 @@ func TestSpecs(t *testing.T) {
 	specs.Transaction(t, repo)
 
 	// Constraint specs
+	// - Check constraint is not supported by mysql
 	specs.UniqueConstraint(t, repo)
 	specs.ForeignKeyConstraint(t, repo)
 }

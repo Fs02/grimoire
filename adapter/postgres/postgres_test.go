@@ -47,7 +47,8 @@ func init() {
 	_, _, err = adapter.Exec(`CREATE TABLE extras (
 		id SERIAL NOT NULL PRIMARY KEY,
 		slug VARCHAR(30) DEFAULT NULL UNIQUE,
-		user_id INTEGER REFERENCES users(id)
+		user_id INTEGER REFERENCES users(id),
+		score INTEGER DEFAULT 0 CHECK (score>=0 AND score<=100)
 	);`, nil)
 	paranoid.Panic(err, "failed creating extras table")
 }
@@ -102,6 +103,7 @@ func TestSpecs(t *testing.T) {
 	// Constraint specs
 	specs.UniqueConstraint(t, repo)
 	specs.ForeignKeyConstraint(t, repo)
+	specs.CheckConstraint(t, repo)
 }
 
 func TestAdapterInsertAllError(t *testing.T) {

@@ -49,7 +49,9 @@ func init() {
 		id INTEGER PRIMARY KEY,
 		slug VARCHAR(30) DEFAULT NULL UNIQUE,
 		user_id INTEGER,
-		FOREIGN KEY (user_id) REFERENCES users(id)
+		score INTEGER DEFAULT 0,
+		FOREIGN KEY (user_id) REFERENCES users(id),
+		CONSTRAINT extras_score_check CHECK (score>=0 AND score<=100)
 	);`, nil)
 	paranoid.Panic(err, "failed when creating extras table")
 }
@@ -104,6 +106,7 @@ func TestSpecs(t *testing.T) {
 	// Constraint specs
 	// - foreign key constraint is not supported because of lack of information in the error message.
 	specs.UniqueConstraint(t, repo)
+	specs.CheckConstraint(t, repo)
 }
 
 func TestAdapterInsertAllError(t *testing.T) {

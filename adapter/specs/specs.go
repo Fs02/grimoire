@@ -35,8 +35,9 @@ type Address struct {
 
 // Extra defines baz schema.
 type Extra struct {
-	ID   uint
-	Slug *string
+	ID    uint
+	Slug  *string
+	Score int
 }
 
 // User table identifiers
