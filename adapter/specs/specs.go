@@ -54,9 +54,9 @@ const (
 	address   = c.I("address")
 )
 
-func assertConstraint(t *testing.T, err error, code int, field string) {
+func assertConstraint(t *testing.T, err error, kind errors.Kind, field string) {
 	assert.NotNil(t, err)
 	gerr, _ := err.(errors.Error)
 	assert.True(t, strings.Contains(gerr.Field, field))
-	assert.Equal(t, code, gerr.Code)
+	assert.Equal(t, kind, gerr.Kind())
 }

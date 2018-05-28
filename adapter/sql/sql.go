@@ -105,7 +105,7 @@ func (adapter *Adapter) Begin() (grimoire.Adapter, error) {
 // Commit commits current transaction.
 func (adapter *Adapter) Commit() error {
 	if adapter.Tx == nil {
-		return errors.UnexpectedError("not in transaction")
+		return errors.NewUnexpected("not in transaction")
 	}
 
 	err := adapter.Tx.Commit()
@@ -115,7 +115,7 @@ func (adapter *Adapter) Commit() error {
 // Rollback revert current transaction.
 func (adapter *Adapter) Rollback() error {
 	if adapter.Tx == nil {
-		return errors.UnexpectedError("not in transaction")
+		return errors.NewUnexpected("not in transaction")
 	}
 
 	err := adapter.Tx.Rollback()

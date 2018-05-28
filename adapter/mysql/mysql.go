@@ -62,9 +62,9 @@ func errorFunc(err error) error {
 	e, _ := err.(*mysql.MySQLError)
 	switch e.Number {
 	case 1062:
-		return errors.UniqueConstraintError(e.Message, internal.ExtractString(e.Message, "key '", "'"))
+		return errors.New(e.Message, internal.ExtractString(e.Message, "key '", "'"), errors.UniqueConstraint)
 	case 1452:
-		return errors.UniqueConstraintError(e.Message, internal.ExtractString(e.Message, "CONSTRAINT `", "`"))
+		return errors.New(e.Message, internal.ExtractString(e.Message, "CONSTRAINT `", "`"), errors.ForeignKeyConstraint)
 	default:
 		return err
 	}

@@ -116,6 +116,6 @@ func QueryNotFound(t *testing.T, repo grimoire.Repo) {
 		// find user error not found
 		err := repo.From("users").Find(0).One(&user)
 		assert.NotNil(t, err)
-		assert.True(t, err.(errors.Error).NotFoundError())
+		assert.Equal(t, errors.NotFound, err.(errors.Error).Kind())
 	})
 }

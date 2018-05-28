@@ -52,9 +52,9 @@ func errorFunc(err error) error {
 	e, _ := err.(sqlite3.Error)
 	switch e.ExtendedCode {
 	case sqlite3.ErrConstraintUnique:
-		return errors.UniqueConstraintError(e.Error(), strings.Split(e.Error(), "failed: ")[1])
+		return errors.New(e.Error(), strings.Split(e.Error(), "failed: ")[1], errors.UniqueConstraint)
 	case sqlite3.ErrConstraintCheck:
-		return errors.UniqueConstraintError(e.Error(), strings.Split(e.Error(), "failed: ")[1])
+		return errors.New(e.Error(), strings.Split(e.Error(), "failed: ")[1], errors.CheckConstraint)
 	default:
 		return err
 	}

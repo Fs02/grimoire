@@ -146,7 +146,7 @@ func (query Query) One(record interface{}) error {
 	if err != nil {
 		return errors.Wrap(err)
 	} else if count == 0 {
-		return errors.NotFoundError("no result found")
+		return errors.New("no result found", "", errors.NotFound)
 	} else {
 		return nil
 	}

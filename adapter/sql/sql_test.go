@@ -35,7 +35,7 @@ func open() (*Adapter, error) {
 }
 
 func TestAdapterNew(t *testing.T) {
-	assert.NotNil(t, New("?", false, nil, nil))
+	assert.NotNil(t, New("?", false, false, nil, nil))
 }
 
 func TestAdapterCount(t *testing.T) {
@@ -114,7 +114,7 @@ func TestAdapterTransactionRollback(t *testing.T) {
 	defer adapter.Close()
 
 	err = grimoire.New(adapter).Transaction(func(repo grimoire.Repo) error {
-		return errors.UniqueConstraintError("", "")
+		return errors.New("", "", errors.UniqueConstraint)
 	})
 
 	assert.NotNil(t, err)

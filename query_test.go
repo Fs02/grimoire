@@ -421,7 +421,7 @@ func TestQueryOneUnexpectedError(t *testing.T) {
 	mock := new(TestAdapter)
 	query := Repo{adapter: mock}.From("users").Limit(1)
 
-	mock.On("All", query, &user).Return(1, errors.UnexpectedError("error"))
+	mock.On("All", query, &user).Return(1, errors.NewUnexpected("error"))
 
 	assert.NotNil(t, query.One(&user))
 	assert.Panics(t, func() { query.MustOne(&user) })
@@ -435,7 +435,7 @@ func TestQueryOneNotFound(t *testing.T) {
 
 	mock.On("All", query, &user).Return(0, nil)
 
-	assert.Equal(t, errors.NotFoundError("no result found"), query.One(&user))
+	assert.Equal(t, errors.New("no result found", "", errors.NotFound), query.One(&user))
 	assert.Panics(t, func() { query.MustOne(&user) })
 	mock.AssertExpectations(t)
 }
@@ -566,7 +566,7 @@ func TestQueryInsertMultipleError(t *testing.T) {
 
 	allchanges := []map[string]interface{}{changes, changes}
 
-	mock.On("InsertAll", query, allchanges).Return([]interface{}{1, 2}, errors.UnexpectedError("error"))
+	mock.On("InsertAll", query, allchanges).Return([]interface{}{1, 2}, errors.NewUnexpected("error"))
 
 	assert.NotNil(t, query.Insert(&users, ch1, ch2))
 	assert.Panics(t, func() { query.MustInsert(&users, ch1, ch2) })
@@ -634,7 +634,7 @@ func TestQueryInsertOnlySetError(t *testing.T) {
 		"age": 10,
 	}
 
-	mock.On("Insert", query, changes).Return(0, errors.UnexpectedError("error"))
+	mock.On("Insert", query, changes).Return(0, errors.NewUnexpected("error"))
 
 	assert.NotNil(t, query.Insert(nil))
 	assert.Panics(t, func() { query.MustInsert(nil) })
@@ -739,7 +739,7 @@ func TestQueryInsertError(t *testing.T) {
 		"updated_at": time.Now().Round(time.Second),
 	}
 
-	mock.On("Insert", query, changes).Return(0, errors.UnexpectedError("error"))
+	mock.On("Insert", query, changes).Return(0, errors.NewUnexpected("error"))
 
 	assert.NotNil(t, query.Insert(&user, ch))
 	assert.Panics(t, func() { query.MustInsert(&user, ch) })
@@ -908,7 +908,7 @@ func TestQueryUpdateError(t *testing.T) {
 		"updated_at": time.Now().Round(time.Second),
 	}
 
-	mock.On("Update", query, changes).Return(errors.UnexpectedError("error"))
+	mock.On("Update", query, changes).Return(errors.NewUnexpected("error"))
 
 	assert.NotNil(t, query.Update(&user, ch))
 	assert.Panics(t, func() { query.MustUpdate(&user, ch) })
@@ -1349,7 +1349,7 @@ func TestPreloadQueryError(t *testing.T) {
 	user := User{ID: 10}
 	query := repo.From("addresses")
 
-	mock.On("All", query.Where(In("user_id", 10)), &[]Address{}).Return(1, errors.UnexpectedError("query error"))
+	mock.On("All", query.Where(In("user_id", 10)), &[]Address{}).Return(1, errors.NewUnexpected("query error"))
 
 	assert.NotNil(t, query.Preload(&user, "Address"))
 	assert.Panics(t, func() { query.MustPreload(&user, "Address") })

@@ -94,11 +94,11 @@ func errorFunc(err error) error {
 	e, _ := err.(*pq.Error)
 	switch e.Code {
 	case "23505":
-		return errors.UniqueConstraintError(e.Message, internal.ExtractString(e.Message, "constraint \"", "\""))
+		return errors.New(e.Message, internal.ExtractString(e.Message, "constraint \"", "\""), errors.UniqueConstraint)
 	case "23503":
-		return errors.UniqueConstraintError(e.Message, internal.ExtractString(e.Message, "constraint \"", "\""))
+		return errors.New(e.Message, internal.ExtractString(e.Message, "constraint \"", "\""), errors.ForeignKeyConstraint)
 	case "23514":
-		return errors.UniqueConstraintError(e.Message, internal.ExtractString(e.Message, "constraint \"", "\""))
+		return errors.New(e.Message, internal.ExtractString(e.Message, "constraint \"", "\""), errors.CheckConstraint)
 	default:
 		return err
 	}
