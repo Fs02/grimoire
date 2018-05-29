@@ -61,7 +61,7 @@ func dsn() string {
 	return "postgres://postgres@localhost/grimoire_test?sslmode=disable"
 }
 
-func TestSpecs(t *testing.T) {
+func TestAdapter__specs(t *testing.T) {
 	adapter, err := Open(dsn())
 	paranoid.Panic(err, "failed to open database connection")
 	defer adapter.Close()
@@ -106,7 +106,7 @@ func TestSpecs(t *testing.T) {
 	specs.CheckConstraint(t, repo)
 }
 
-func TestAdapterInsertAllError(t *testing.T) {
+func TestAdapter_InsertAll_error(t *testing.T) {
 	adapter, err := Open(dsn())
 	paranoid.Panic(err, "failed to open database connection")
 	defer adapter.Close()
@@ -122,7 +122,7 @@ func TestAdapterInsertAllError(t *testing.T) {
 	assert.NotNil(t, err)
 }
 
-func TestAdapterTransactionCommitError(t *testing.T) {
+func TestAdapter_Transaction_commitError(t *testing.T) {
 	adapter, err := Open(dsn())
 	paranoid.Panic(err, "failed to open database connection")
 	defer adapter.Close()
@@ -130,7 +130,7 @@ func TestAdapterTransactionCommitError(t *testing.T) {
 	assert.NotNil(t, adapter.Commit())
 }
 
-func TestAdapterTransactionRollbackError(t *testing.T) {
+func TestAdapter_Transaction_rollbackError(t *testing.T) {
 	adapter, err := Open(dsn())
 	paranoid.Panic(err, "failed to open database connection")
 	defer adapter.Close()
@@ -138,7 +138,7 @@ func TestAdapterTransactionRollbackError(t *testing.T) {
 	assert.NotNil(t, adapter.Rollback())
 }
 
-func TestAdapterQueryError(t *testing.T) {
+func TestAdapter_Query_error(t *testing.T) {
 	adapter, err := Open(dsn())
 	paranoid.Panic(err, "failed to open database connection")
 	defer adapter.Close()
@@ -149,7 +149,7 @@ func TestAdapterQueryError(t *testing.T) {
 	assert.NotNil(t, err)
 }
 
-func TestAdapterExecError(t *testing.T) {
+func TestAdapter_Exec_error(t *testing.T) {
 	adapter, err := Open(dsn())
 	paranoid.Panic(err, "failed to open database connection")
 	defer adapter.Close()

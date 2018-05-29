@@ -6,7 +6,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestErrorInterface(t *testing.T) {
+func TestError_Error(t *testing.T) {
 	assert.Equal(t, "error", error(Error{Message: "error"}).Error())
 }
 

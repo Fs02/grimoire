@@ -15,7 +15,7 @@ func TestDefaultLogger(t *testing.T) {
 	})
 }
 
-func TestLogger(t *testing.T) {
+func TestLog(t *testing.T) {
 	assert.NotPanics(t, func() {
 		Log([]Logger{DefaultLogger}, "", time.Second, nil)
 	})

@@ -106,7 +106,7 @@ func TestCast(t *testing.T) {
 	assert.NotNil(t, ch.Values())
 }
 
-func TestCastExistingChangeset(t *testing.T) {
+func TestCast_existingChangeset(t *testing.T) {
 	var data struct {
 		Field1 int `db:"field1"`
 		Field2 string
@@ -154,7 +154,7 @@ func TestCastExistingChangeset(t *testing.T) {
 	assert.Equal(t, expectedValues, ch.values)
 }
 
-func TestCastUnchanged(t *testing.T) {
+func TestCast_unchanged(t *testing.T) {
 	var data struct {
 		Field1 int `db:"field1"`
 		Field2 string
@@ -191,7 +191,7 @@ func TestCastUnchanged(t *testing.T) {
 	assert.Equal(t, expectedValues, ch.values)
 }
 
-func TestCastError(t *testing.T) {
+func TestCast_error(t *testing.T) {
 	var data struct {
 		Field1 int
 	}
@@ -205,7 +205,7 @@ func TestCastError(t *testing.T) {
 	assert.Equal(t, "field1 is invalid", ch.Error().Error())
 }
 
-func TestCastPanic(t *testing.T) {
+func TestCast_panic(t *testing.T) {
 	params := map[string]interface{}{
 		"field1": "1",
 	}
@@ -287,7 +287,7 @@ var expectedTypes = map[string]reflect.Type{
 	"field15": reflect.TypeOf(""),
 }
 
-func TestCastBasic(t *testing.T) {
+func TestCast_basic(t *testing.T) {
 	var data struct {
 		Field1  bool
 		Field2  int
@@ -330,7 +330,7 @@ func TestCastBasic(t *testing.T) {
 	assert.Equal(t, expectedTypes, ch.types)
 }
 
-func TestCastBasicWithValue(t *testing.T) {
+func TestCast_basicWithValue(t *testing.T) {
 	data := struct {
 		Field1  bool
 		Field2  int
@@ -407,7 +407,7 @@ func TestCastBasicWithValue(t *testing.T) {
 	assert.Equal(t, expectedTypes, ch.types)
 }
 
-func TestCastPtr(t *testing.T) {
+func TestCast_ptr(t *testing.T) {
 	var data struct {
 		Field1  *bool
 		Field2  *int
@@ -450,7 +450,7 @@ func TestCastPtr(t *testing.T) {
 	assert.Equal(t, expectedTypes, ch.types)
 }
 
-func TestCastPtrWithValue(t *testing.T) {
+func TestCast_ptrWithValue(t *testing.T) {
 	var (
 		vbool    = false
 		vint     = int(1)
@@ -544,7 +544,7 @@ func TestCastPtrWithValue(t *testing.T) {
 	assert.Equal(t, expectedTypes, ch.types)
 }
 
-func TestCastPtrWithNilValue(t *testing.T) {
+func TestCast_ptrWithNilValue(t *testing.T) {
 	var (
 		vbool    = true
 		vint     = int(1)
@@ -674,7 +674,7 @@ func TestCastPtrWithNilValue(t *testing.T) {
 	assert.Equal(t, expectedTypes, ch.types)
 }
 
-func TestCastPtrWithTypedNilValue(t *testing.T) {
+func TestCast_ptrWithTypedNilValue(t *testing.T) {
 	var (
 		vbool    = true
 		vint     = int(1)
@@ -858,7 +858,7 @@ var sliceExpectedTypes = map[string]reflect.Type{
 	"field15": reflect.TypeOf([]string{}),
 }
 
-func TestCastSlice(t *testing.T) {
+func TestCast_slice(t *testing.T) {
 	var data struct {
 		Field1  []bool
 		Field2  []int
@@ -919,7 +919,7 @@ func TestCastSlice(t *testing.T) {
 	assert.Equal(t, sliceExpectedTypes, ch.types)
 }
 
-func TestCastSliceWithValue(t *testing.T) {
+func TestCast_sliceWithValue(t *testing.T) {
 	data := struct {
 		Field1  []bool
 		Field2  []int

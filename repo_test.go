@@ -17,14 +17,14 @@ func TestNew(t *testing.T) {
 	assert.Equal(t, adapter, repo.Adapter())
 }
 
-func TestRepoSetLogger(t *testing.T) {
+func TestRepo_SetLogger(t *testing.T) {
 	repo := Repo{}
 	assert.Nil(t, repo.logger)
 	repo.SetLogger(DefaultLogger)
 	assert.NotNil(t, repo.logger)
 }
 
-func TestRepoFrom(t *testing.T) {
+func TestRepo_From(t *testing.T) {
 	assert.Equal(t, repo.From("users"), Query{
 		repo:       &repo,
 		Collection: "users",
@@ -32,7 +32,7 @@ func TestRepoFrom(t *testing.T) {
 	})
 }
 
-func TestRepoTransaction(t *testing.T) {
+func TestRepo_Transaction(t *testing.T) {
 	mock := new(TestAdapter)
 	mock.On("Begin").Return(nil).
 		On("Commit").Return(nil)
@@ -46,7 +46,7 @@ func TestRepoTransaction(t *testing.T) {
 	mock.AssertExpectations(t)
 }
 
-func TestTransactionBeginError(t *testing.T) {
+func TestRepo_Transaction_beginError(t *testing.T) {
 	mock := new(TestAdapter)
 	mock.On("Begin").Return(errors.NewUnexpected("error"))
 
@@ -59,7 +59,7 @@ func TestTransactionBeginError(t *testing.T) {
 	mock.AssertExpectations(t)
 }
 
-func TestTransactionCommitError(t *testing.T) {
+func TestRepo_Transaction_commitError(t *testing.T) {
 	mock := new(TestAdapter)
 	mock.On("Begin").Return(nil).
 		On("Commit").Return(errors.NewUnexpected("error"))
@@ -73,7 +73,7 @@ func TestTransactionCommitError(t *testing.T) {
 	mock.AssertExpectations(t)
 }
 
-func TestTransactionReturnErrorAndRollback(t *testing.T) {
+func TestRepo_Transaction_returnErrorAndRollback(t *testing.T) {
 	mock := new(TestAdapter)
 	mock.On("Begin").Return(nil).
 		On("Rollback").Return(nil)
@@ -87,7 +87,7 @@ func TestTransactionReturnErrorAndRollback(t *testing.T) {
 	mock.AssertExpectations(t)
 }
 
-func TestTransactionPanicWithKnownErrorAndRollback(t *testing.T) {
+func TestRepo_Transaction_panicWithKnownErrorAndRollback(t *testing.T) {
 	mock := new(TestAdapter)
 	mock.On("Begin").Return(nil).
 		On("Rollback").Return(nil)
@@ -101,7 +101,7 @@ func TestTransactionPanicWithKnownErrorAndRollback(t *testing.T) {
 	mock.AssertExpectations(t)
 }
 
-func TestTransactionPanicAndRollback(t *testing.T) {
+func TestRepo_Transaction_panicAndRollback(t *testing.T) {
 	mock := new(TestAdapter)
 	mock.On("Begin").Return(nil).
 		On("Rollback").Return(nil)

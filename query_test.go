@@ -38,7 +38,7 @@ type Owner struct {
 	UserID *int
 }
 
-func TestQuerySelect(t *testing.T) {
+func TestQuery_Select(t *testing.T) {
 	assert.Equal(t, repo.From("users").Select("*"), Query{
 		repo:       &repo,
 		Collection: "users",
@@ -52,7 +52,7 @@ func TestQuerySelect(t *testing.T) {
 	})
 }
 
-func TestQueryDistinct(t *testing.T) {
+func TestQuery_Distinct(t *testing.T) {
 	assert.Equal(t, repo.From("users").Distinct(), Query{
 		repo:       &repo,
 		Collection: "users",
@@ -61,7 +61,7 @@ func TestQueryDistinct(t *testing.T) {
 	})
 }
 
-func TestQueryJoin(t *testing.T) {
+func TestQuery_Join(t *testing.T) {
 	assert.Equal(t, repo.From("users").Join("transactions"), Query{
 		repo:       &repo,
 		Collection: "users",
@@ -98,7 +98,7 @@ func TestQueryJoin(t *testing.T) {
 	})
 }
 
-func TestQueryWhere(t *testing.T) {
+func TestQuery_Where(t *testing.T) {
 	tests := []struct {
 		Case     string
 		Build    Query
@@ -143,7 +143,7 @@ func TestQueryWhere(t *testing.T) {
 	}
 }
 
-func TestQueryOrWhere(t *testing.T) {
+func TestQuery_OrWhere(t *testing.T) {
 	tests := []struct {
 		Case     string
 		Build    Query
@@ -208,7 +208,7 @@ func TestQueryOrWhere(t *testing.T) {
 	}
 }
 
-func TestQueryGroup(t *testing.T) {
+func TestQuery_Group(t *testing.T) {
 	assert.Equal(t, repo.From("users").Group("active", "plan"), Query{
 		repo:        &repo,
 		Collection:  "users",
@@ -217,7 +217,7 @@ func TestQueryGroup(t *testing.T) {
 	})
 }
 
-func TestQueryHaving(t *testing.T) {
+func TestQuery_Having(t *testing.T) {
 	tests := []struct {
 		Case     string
 		Build    Query
@@ -262,7 +262,7 @@ func TestQueryHaving(t *testing.T) {
 	}
 }
 
-func TestQueryOrHaving(t *testing.T) {
+func TestQuery_OrHaving(t *testing.T) {
 	tests := []struct {
 		Case     string
 		Build    Query
@@ -327,7 +327,7 @@ func TestQueryOrHaving(t *testing.T) {
 	}
 }
 
-func TestQueryOrderBy(t *testing.T) {
+func TestQuery_OrderBy(t *testing.T) {
 	assert.Equal(t, repo.From("users").Order(Asc("id")), Query{
 		repo:       &repo,
 		Collection: "users",
@@ -341,7 +341,7 @@ func TestQueryOrderBy(t *testing.T) {
 	})
 }
 
-func TestQueryOffset(t *testing.T) {
+func TestQuery_Offset(t *testing.T) {
 	assert.Equal(t, repo.From("users").Offset(10), Query{
 		repo:         &repo,
 		Collection:   "users",
@@ -350,7 +350,7 @@ func TestQueryOffset(t *testing.T) {
 	})
 }
 
-func TestQueryLimit(t *testing.T) {
+func TestQuery_Limit(t *testing.T) {
 	assert.Equal(t, repo.From("users").Limit(10), Query{
 		repo:        &repo,
 		Collection:  "users",
@@ -359,7 +359,7 @@ func TestQueryLimit(t *testing.T) {
 	})
 }
 
-func TestQueryFind(t *testing.T) {
+func TestQuery_Find(t *testing.T) {
 	assert.Equal(t, repo.From("users").Find(1), Query{
 		repo:       &repo,
 		Collection: "users",
@@ -375,7 +375,7 @@ func TestQueryFind(t *testing.T) {
 	})
 }
 
-func TestQueryFindBy(t *testing.T) {
+func TestQuery_FindBy(t *testing.T) {
 	assert.Equal(t, repo.From("users").FindBy("email", "user@email.com"), Query{
 		repo:       &repo,
 		Collection: "users",
@@ -384,7 +384,7 @@ func TestQueryFindBy(t *testing.T) {
 	})
 }
 
-func TestQuerySet(t *testing.T) {
+func TestQuery_Set(t *testing.T) {
 	assert.Equal(t, repo.From("users").Set("field", 1), Query{
 		repo:       &repo,
 		Collection: "users",
@@ -405,7 +405,7 @@ func TestQuerySet(t *testing.T) {
 	})
 }
 
-func TestQueryOne(t *testing.T) {
+func TestQuery_One(t *testing.T) {
 	user := User{}
 	mock := new(TestAdapter)
 	query := Repo{adapter: mock}.From("users").Limit(1)
@@ -417,7 +417,7 @@ func TestQueryOne(t *testing.T) {
 	mock.AssertExpectations(t)
 }
 
-func TestQueryOneUnexpectedError(t *testing.T) {
+func TestQuery_One_unexpectedError(t *testing.T) {
 	user := User{}
 	mock := new(TestAdapter)
 	query := Repo{adapter: mock}.From("users").Limit(1)
@@ -429,7 +429,7 @@ func TestQueryOneUnexpectedError(t *testing.T) {
 	mock.AssertExpectations(t)
 }
 
-func TestQueryOneNotFound(t *testing.T) {
+func TestQuery_One_notFound(t *testing.T) {
 	user := User{}
 	mock := new(TestAdapter)
 	query := Repo{adapter: mock}.From("users").Limit(1)
@@ -441,7 +441,7 @@ func TestQueryOneNotFound(t *testing.T) {
 	mock.AssertExpectations(t)
 }
 
-func TestQueryAll(t *testing.T) {
+func TestQuery_All(t *testing.T) {
 	user := User{}
 	mock := new(TestAdapter)
 	query := Repo{adapter: mock}.From("users").Limit(1)
@@ -453,7 +453,7 @@ func TestQueryAll(t *testing.T) {
 	mock.AssertExpectations(t)
 }
 
-func TestQueryCount(t *testing.T) {
+func TestQuery_Count(t *testing.T) {
 	mock := new(TestAdapter)
 	query := Repo{adapter: mock}.From("users")
 
@@ -483,7 +483,7 @@ func createChangeset() (*changeset.Changeset, User) {
 	return ch, user
 }
 
-func TestQueryInsert(t *testing.T) {
+func TestQuery_Insert(t *testing.T) {
 	ch, user := createChangeset()
 	mock := new(TestAdapter)
 	query := Repo{adapter: mock}.From("users")
@@ -502,7 +502,7 @@ func TestQueryInsert(t *testing.T) {
 	mock.AssertExpectations(t)
 }
 
-func TestQueryInsertMultiple(t *testing.T) {
+func TestQuery_Insert_multiple(t *testing.T) {
 	ch1, user1 := createChangeset()
 	ch2, user2 := createChangeset()
 	users := []User{user1, user2}
@@ -526,7 +526,7 @@ func TestQueryInsertMultiple(t *testing.T) {
 	mock.AssertExpectations(t)
 }
 
-func TestQueryInsertMultipleWithSet(t *testing.T) {
+func TestQuery_Insert_multipleWithSet(t *testing.T) {
 	ch1, user1 := createChangeset()
 	ch2, user2 := createChangeset()
 	users := []User{user1, user2}
@@ -551,7 +551,7 @@ func TestQueryInsertMultipleWithSet(t *testing.T) {
 	mock.AssertExpectations(t)
 }
 
-func TestQueryInsertMultipleError(t *testing.T) {
+func TestQuery_Insert_multipleError(t *testing.T) {
 	ch1, user1 := createChangeset()
 	ch2, user2 := createChangeset()
 	users := []User{user1, user2}
@@ -574,7 +574,7 @@ func TestQueryInsertMultipleError(t *testing.T) {
 	mock.AssertExpectations(t)
 }
 
-func TestQueryInsertNotReturning(t *testing.T) {
+func TestQuery_Insert_notReturning(t *testing.T) {
 	ch, _ := createChangeset()
 	mock := new(TestAdapter)
 	query := Repo{adapter: mock}.From("users")
@@ -592,7 +592,7 @@ func TestQueryInsertNotReturning(t *testing.T) {
 	mock.AssertExpectations(t)
 }
 
-func TestQueryInsertWithSet(t *testing.T) {
+func TestQuery_Insert_withSet(t *testing.T) {
 	ch, user := createChangeset()
 	mock := new(TestAdapter)
 	query := Repo{adapter: mock}.From("users").Set("age", 10)
@@ -612,7 +612,7 @@ func TestQueryInsertWithSet(t *testing.T) {
 	mock.AssertExpectations(t)
 }
 
-func TestQueryInsertOnlySet(t *testing.T) {
+func TestQuery_Insert_onlySet(t *testing.T) {
 	mock := new(TestAdapter)
 	query := Repo{adapter: mock}.From("users").Set("age", 10)
 
@@ -627,7 +627,7 @@ func TestQueryInsertOnlySet(t *testing.T) {
 	mock.AssertExpectations(t)
 }
 
-func TestQueryInsertOnlySetError(t *testing.T) {
+func TestQuery_Insert_onlySetError(t *testing.T) {
 	mock := new(TestAdapter)
 	query := Repo{adapter: mock}.From("users").Set("age", 10)
 
@@ -642,7 +642,7 @@ func TestQueryInsertOnlySetError(t *testing.T) {
 	mock.AssertExpectations(t)
 }
 
-func TestQueryInsertAssocOne(t *testing.T) {
+func TestQuery_Insert_assocOne(t *testing.T) {
 	var card struct {
 		ID   int
 		User User
@@ -678,7 +678,7 @@ func TestQueryInsertAssocOne(t *testing.T) {
 	mock.AssertExpectations(t)
 }
 
-func TestQueryInsertAssocMany(t *testing.T) {
+func TestQuery_Insert_assocMany(t *testing.T) {
 	var group struct {
 		Name  string
 		Users []User
@@ -729,7 +729,7 @@ func TestQueryInsertAssocMany(t *testing.T) {
 	assert.NotPanics(t, func() { query.MustInsert(&group.Users, userChs...) })
 	mock.AssertExpectations(t)
 }
-func TestQueryInsertError(t *testing.T) {
+func TestQuery_Insert_error(t *testing.T) {
 	ch, user := createChangeset()
 	mock := new(TestAdapter)
 	query := Repo{adapter: mock}.From("users")
@@ -747,7 +747,7 @@ func TestQueryInsertError(t *testing.T) {
 	mock.AssertExpectations(t)
 }
 
-func TestQueryUpdate(t *testing.T) {
+func TestQuery_Update(t *testing.T) {
 	ch, user := createChangeset()
 	mock := new(TestAdapter)
 	query := Repo{adapter: mock}.From("users")
@@ -765,7 +765,7 @@ func TestQueryUpdate(t *testing.T) {
 	mock.AssertExpectations(t)
 }
 
-func TestUpdateWithSet(t *testing.T) {
+func TestQuery_Update_withSet(t *testing.T) {
 	ch, user := createChangeset()
 	mock := new(TestAdapter)
 	query := Repo{adapter: mock}.From("users").Set("age", 10)
@@ -784,7 +784,7 @@ func TestUpdateWithSet(t *testing.T) {
 	mock.AssertExpectations(t)
 }
 
-func TestUpdateOnlySet(t *testing.T) {
+func TestQuery_Update_onlySet(t *testing.T) {
 	mock := new(TestAdapter)
 	query := Repo{adapter: mock}.From("users").Set("age", 10)
 
@@ -799,7 +799,7 @@ func TestUpdateOnlySet(t *testing.T) {
 	mock.AssertExpectations(t)
 }
 
-func TestUpdateNotReturning(t *testing.T) {
+func TestQuery_Update_notReturning(t *testing.T) {
 	ch, _ := createChangeset()
 	mock := new(TestAdapter)
 	query := Repo{adapter: mock}.From("users")
@@ -816,7 +816,7 @@ func TestUpdateNotReturning(t *testing.T) {
 	mock.AssertExpectations(t)
 }
 
-func TestUpdateNothing(t *testing.T) {
+func TestQuery_Update_nothing(t *testing.T) {
 	mock := new(TestAdapter)
 	query := Repo{adapter: mock}.From("users")
 
@@ -825,7 +825,7 @@ func TestUpdateNothing(t *testing.T) {
 	mock.AssertExpectations(t)
 }
 
-func TestQueryUpdateAssocOne(t *testing.T) {
+func TestQuery_Update_assocOne(t *testing.T) {
 	var card struct {
 		ID   int
 		User User
@@ -861,7 +861,7 @@ func TestQueryUpdateAssocOne(t *testing.T) {
 	mock.AssertExpectations(t)
 }
 
-func TestUpdateAssocMany(t *testing.T) {
+func TestQuery_Update_assocMany(t *testing.T) {
 	var group struct {
 		Name  string
 		Users []User
@@ -899,7 +899,7 @@ func TestUpdateAssocMany(t *testing.T) {
 	mock.AssertExpectations(t)
 }
 
-func TestQueryUpdateError(t *testing.T) {
+func TestQuery_Update_error(t *testing.T) {
 	ch, user := createChangeset()
 	mock := new(TestAdapter)
 	query := Repo{adapter: mock}.From("users")
@@ -916,7 +916,7 @@ func TestQueryUpdateError(t *testing.T) {
 	mock.AssertExpectations(t)
 }
 
-func TestPutInsert(t *testing.T) {
+func TestQuery_Put_insert(t *testing.T) {
 	mock := new(TestAdapter)
 	query := Repo{adapter: mock}.From("users")
 	user := User{}
@@ -936,7 +936,7 @@ func TestPutInsert(t *testing.T) {
 	mock.AssertExpectations(t)
 }
 
-func TestPutInsertMultiple(t *testing.T) {
+func TestQuery_Put_insertMultiple(t *testing.T) {
 	mock := new(TestAdapter)
 	query := Repo{adapter: mock}.From("users")
 	users := []User{{}, {}}
@@ -956,7 +956,7 @@ func TestPutInsertMultiple(t *testing.T) {
 	mock.AssertExpectations(t)
 }
 
-func TestPutUpdate(t *testing.T) {
+func TestQuery_Put_update(t *testing.T) {
 	mock := new(TestAdapter)
 	query := Repo{adapter: mock}.From("users").Find(1)
 	user := User{}
@@ -975,7 +975,7 @@ func TestPutUpdate(t *testing.T) {
 	mock.AssertExpectations(t)
 }
 
-func TestPutUpdateMultiple(t *testing.T) {
+func TestQuery_Put_updateMultiple(t *testing.T) {
 	mock := new(TestAdapter)
 	query := Repo{adapter: mock}.From("users").Where(Eq("name", "name"))
 	users := []User{{}, {}}
@@ -994,7 +994,7 @@ func TestPutUpdateMultiple(t *testing.T) {
 	mock.AssertExpectations(t)
 }
 
-func TestPutSliceEmpty(t *testing.T) {
+func TestQuery_Put_sliceEmpty(t *testing.T) {
 	mock := new(TestAdapter)
 	query := Repo{adapter: mock}.From("users")
 	users := []User{}
@@ -1003,7 +1003,7 @@ func TestPutSliceEmpty(t *testing.T) {
 	assert.NotPanics(t, func() { query.MustSave(&users) })
 }
 
-func TestQueryDelete(t *testing.T) {
+func TestQuery_Delete(t *testing.T) {
 	mock := new(TestAdapter)
 	query := Repo{adapter: mock}.From("users")
 
@@ -1041,7 +1041,7 @@ func TestGetFields(t *testing.T) {
 	assert.Equal(t, []string{"name"}, getFields(query, []*changeset.Changeset{ch}))
 }
 
-func TestPreloadHasOne(t *testing.T) {
+func TestQuery_Preload_hasOne(t *testing.T) {
 	mock := new(TestAdapter)
 	repo := Repo{adapter: mock}
 
@@ -1060,7 +1060,7 @@ func TestPreloadHasOne(t *testing.T) {
 	mock.AssertExpectations(t)
 }
 
-func TestPreloadSliceHasOne(t *testing.T) {
+func TestQuery_Preload_sliceHasOne(t *testing.T) {
 	mock := new(TestAdapter)
 	repo := Repo{adapter: mock}
 
@@ -1081,7 +1081,7 @@ func TestPreloadSliceHasOne(t *testing.T) {
 	mock.AssertExpectations(t)
 }
 
-func TestPreloadNestedHasOne(t *testing.T) {
+func TestQuery_Preload_nestedHasOne(t *testing.T) {
 	mock := new(TestAdapter)
 	repo := Repo{adapter: mock}
 
@@ -1103,7 +1103,7 @@ func TestPreloadNestedHasOne(t *testing.T) {
 	mock.AssertExpectations(t)
 }
 
-func TestPreloadSliceNestedHasOne(t *testing.T) {
+func TestQuery_Preload_sliceNestedHasOne(t *testing.T) {
 	mock := new(TestAdapter)
 	repo := Repo{adapter: mock}
 
@@ -1128,7 +1128,7 @@ func TestPreloadSliceNestedHasOne(t *testing.T) {
 	mock.AssertExpectations(t)
 }
 
-func TestPreloadHasMany(t *testing.T) {
+func TestQuery_Preload_hasMany(t *testing.T) {
 	mock := new(TestAdapter)
 	repo := Repo{adapter: mock}
 
@@ -1148,7 +1148,7 @@ func TestPreloadHasMany(t *testing.T) {
 	mock.AssertExpectations(t)
 }
 
-func TestPreloadSliceHasMany(t *testing.T) {
+func TestQuery_Preload_sliceHasMany(t *testing.T) {
 	mock := new(TestAdapter)
 	repo := Repo{adapter: mock}
 
@@ -1171,7 +1171,7 @@ func TestPreloadSliceHasMany(t *testing.T) {
 	mock.AssertExpectations(t)
 }
 
-func TestPreloadNestedHasMany(t *testing.T) {
+func TestQuery_Preload_nestedHasMany(t *testing.T) {
 	mock := new(TestAdapter)
 	repo := Repo{adapter: mock}
 
@@ -1191,7 +1191,7 @@ func TestPreloadNestedHasMany(t *testing.T) {
 	mock.AssertExpectations(t)
 }
 
-func TestPreloadNestedSliceHasMany(t *testing.T) {
+func TestQuery_Preload_nestedSliceHasMany(t *testing.T) {
 	mock := new(TestAdapter)
 	repo := Repo{adapter: mock}
 
@@ -1218,7 +1218,7 @@ func TestPreloadNestedSliceHasMany(t *testing.T) {
 	mock.AssertExpectations(t)
 }
 
-func TestPreloadBelongsTo(t *testing.T) {
+func TestQuery_Preload_belongsTo(t *testing.T) {
 	mock := new(TestAdapter)
 	repo := Repo{adapter: mock}
 
@@ -1241,7 +1241,7 @@ func TestPreloadBelongsTo(t *testing.T) {
 	mock.AssertExpectations(t)
 }
 
-func TestPreloadPtr(t *testing.T) {
+func TestQuery_Preload_ptr(t *testing.T) {
 	repo := Repo{}
 	query := repo.From("owners")
 
@@ -1252,7 +1252,7 @@ func TestPreloadPtr(t *testing.T) {
 	assert.Nil(t, owner.UserID)
 }
 
-func TestPreloadSlicePtr(t *testing.T) {
+func TestQuery_Preload_slicePtr(t *testing.T) {
 	mock := new(TestAdapter)
 	repo := Repo{adapter: mock}
 	id := 1
@@ -1280,7 +1280,7 @@ func TestPreloadSlicePtr(t *testing.T) {
 	mock.AssertExpectations(t)
 }
 
-func TestPreloadSliceBelongsTo(t *testing.T) {
+func TestQuery_Preload_sliceBelongsTo(t *testing.T) {
 	mock := new(TestAdapter)
 	repo := Repo{adapter: mock}
 
@@ -1309,21 +1309,21 @@ func TestPreloadSliceBelongsTo(t *testing.T) {
 	mock.AssertExpectations(t)
 }
 
-func TestPreloadEmptySlice(t *testing.T) {
+func TestQuery_Preload_emptySlice(t *testing.T) {
 	repo := Repo{}
 	addresses := []Address{}
 
 	assert.Nil(t, repo.From("transactions").Preload(&addresses, "User.Transactions"))
 }
 
-func TestPreloadNotPointerPanic(t *testing.T) {
+func TestQuery_Preload_notPointerPanic(t *testing.T) {
 	repo := Repo{}
 	transaction := Transaction{}
 
 	assert.Panics(t, func() { repo.From("users").Preload(transaction, "User") })
 }
 
-func TestPreloadNotValidPanic(t *testing.T) {
+func TestQuery_Preload_notValidPanic(t *testing.T) {
 	repo := Repo{}
 	transaction := Transaction{}
 
@@ -1331,7 +1331,7 @@ func TestPreloadNotValidPanic(t *testing.T) {
 	assert.Panics(t, func() { repo.From("users").Preload(&transaction, "ID.User") })
 }
 
-func TestPreloadInvalidKeyPanic(t *testing.T) {
+func TestQuery_Preload_invalidKeyPanic(t *testing.T) {
 	repo := Repo{}
 	info := struct {
 		ID        int
@@ -1343,7 +1343,7 @@ func TestPreloadInvalidKeyPanic(t *testing.T) {
 	assert.Panics(t, func() { repo.From("users").Preload(&info, "OtherUser") })
 }
 
-func TestPreloadQueryError(t *testing.T) {
+func TestQuery_Preload_queryError(t *testing.T) {
 	mock := new(TestAdapter)
 	repo := Repo{adapter: mock}
 
