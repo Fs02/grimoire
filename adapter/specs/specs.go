@@ -6,6 +6,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/Fs02/grimoire/adapter/sql"
 	"github.com/Fs02/grimoire/c"
 	"github.com/Fs02/grimoire/errors"
 	"github.com/stretchr/testify/assert"
@@ -53,6 +54,8 @@ const (
 	createdAt = c.I("created_at")
 	address   = c.I("address")
 )
+
+var builder = sql.NewBuilder("?", false, false)
 
 func assertConstraint(t *testing.T, err error, kind errors.Kind, field string) {
 	assert.NotNil(t, err)
