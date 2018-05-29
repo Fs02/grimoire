@@ -168,12 +168,40 @@ func (adapter *Adapter) Exec(statement string, args []interface{}, loggers ...gr
 }
 
 // New initialize adapter without db.
-func New(placeholder string, ordinal bool, insertDefaultValues bool, errfn func(error) error, incfn func(Adapter) int) *Adapter {
-	return &Adapter{
-		Placeholder:         placeholder,
-		Ordinal:             ordinal,
-		InsertDefaultValues: insertDefaultValues,
-		ErrorFunc:           errfn,
-		IncrementFunc:       incfn,
+func New(errfn func(error) error, incfn func(Adapter) int, configs ...Config) *Adapter {
+	adapter := &Adapter{
+		Placeholder:   "?",
+		ErrorFunc:     errfn,
+		IncrementFunc: incfn,
+	}
+
+	for _, config := range configs {
+		config(adapter)
+	}
+
+	return adapter
+}
+
+// Config for adapter initialization.
+type Config func(*Adapter)
+
+// Placeholder set placeholder string, default "?".
+func Placeholder(placeholder string) Config {
+	return func(adapter *Adapter) {
+		adapter.Placeholder = placeholder
+	}
+}
+
+// Ordinal set the placeholder to use ordinal format.
+func Ordinal(ordinal bool) Config {
+	return func(adapter *Adapter) {
+		adapter.Ordinal = ordinal
+	}
+}
+
+// InsertDefaultValues enable "insert into collection default values" when insertinv record without any value.
+func InsertDefaultValues(flag bool) Config {
+	return func(adapter *Adapter) {
+		adapter.InsertDefaultValues = flag
 	}
 }

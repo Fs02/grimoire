@@ -4,7 +4,7 @@ import (
 	db "database/sql"
 	"testing"
 
-	paranoid "github.com/Fs02/go-paranoid"
+	"github.com/Fs02/go-paranoid"
 	"github.com/Fs02/grimoire"
 	"github.com/Fs02/grimoire/changeset"
 	"github.com/Fs02/grimoire/errors"
@@ -14,12 +14,13 @@ import (
 
 func open() (*Adapter, error) {
 	var err error
-	adapter := &Adapter{
-		Placeholder:   "?",
-		Ordinal:       false,
-		IncrementFunc: func(Adapter) int { return 1 },
-		ErrorFunc:     func(err error) error { return err },
-	}
+	adapter := New(
+		func(err error) error { return err },
+		func(Adapter) int { return 1 },
+		Placeholder("?"),
+		Ordinal(false),
+		InsertDefaultValues(true),
+	)
 
 	// simplified tests using sqlite backend.
 	adapter.DB, err = db.Open("sqlite3", "file::memory:?mode=memory&cache=shared")
@@ -35,7 +36,7 @@ func open() (*Adapter, error) {
 }
 
 func TestNew(t *testing.T) {
-	assert.NotNil(t, New("?", false, false, nil, nil))
+	assert.NotNil(t, New(nil, nil))
 }
 
 func TestAdapter_Count(t *testing.T) {
