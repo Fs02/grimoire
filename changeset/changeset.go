@@ -5,13 +5,36 @@ import (
 	"reflect"
 )
 
+// ConstraintKind defines contraint type.
+type ConstraintKind int
+
+const (
+	// Invalid constraint
+	Invalid ConstraintKind = iota
+	// UniqueConstraintKind for unique constraint.
+	UniqueConstraintKind
+	// ForeignKeyConstraintKind for foreign key constraint.
+	ForeignKeyConstraintKind
+	// CheckConstraintKind for check constraint.
+	CheckConstraintKind
+)
+
+// Constraint defines information to infer constraint error.
+type Constraint struct {
+	Name    string
+	Message string
+	Exact   bool
+	Kind    ConstraintKind
+}
+
 // Changeset used to cast and validate data before saving it to the database.
 type Changeset struct {
-	errors  []error
-	params  map[string]interface{}
-	changes map[string]interface{}
-	values  map[string]interface{}
-	types   map[string]reflect.Type
+	errors      []error
+	params      map[string]interface{}
+	changes     map[string]interface{}
+	values      map[string]interface{}
+	types       map[string]reflect.Type
+	constraints []Constraint
 }
 
 // Errors of changeset.
@@ -40,4 +63,9 @@ func (changeset *Changeset) Values() map[string]interface{} {
 // Types of changeset.
 func (changeset *Changeset) Types() map[string]reflect.Type {
 	return changeset.types
+}
+
+// Constraints of changeset.
+func (changeset *Changeset) Constraints() []Constraint {
+	return changeset.constraints
 }
