@@ -5,28 +5,6 @@ import (
 	"reflect"
 )
 
-// ConstraintKind defines contraint type.
-type ConstraintKind int
-
-const (
-	// Invalid constraint
-	Invalid ConstraintKind = iota
-	// UniqueConstraintKind for unique constraint.
-	UniqueConstraintKind
-	// ForeignKeyConstraintKind for foreign key constraint.
-	ForeignKeyConstraintKind
-	// CheckConstraintKind for check constraint.
-	CheckConstraintKind
-)
-
-// Constraint defines information to infer constraint error.
-type Constraint struct {
-	Name    string
-	Message string
-	Exact   bool
-	Kind    ConstraintKind
-}
-
 // Changeset used to cast and validate data before saving it to the database.
 type Changeset struct {
 	errors      []error
@@ -34,7 +12,7 @@ type Changeset struct {
 	changes     map[string]interface{}
 	values      map[string]interface{}
 	types       map[string]reflect.Type
-	constraints []Constraint
+	constraints Constraints
 }
 
 // Errors of changeset.
@@ -66,6 +44,6 @@ func (changeset *Changeset) Types() map[string]reflect.Type {
 }
 
 // Constraints of changeset.
-func (changeset *Changeset) Constraints() []Constraint {
+func (changeset *Changeset) Constraints() Constraints {
 	return changeset.constraints
 }

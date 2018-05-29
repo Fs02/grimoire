@@ -44,16 +44,3 @@ func NewWithCode(message string, field string, code int, kind Kind) Error {
 func NewUnexpected(message string) Error {
 	return Error{message, "", 0, Unexpected}
 }
-
-// Wrap errors as grimoire's error.
-// If error is grimoire error, it'll remain as is.
-// Otherwise it'll be wrapped as unexpected error.
-func Wrap(err error) error {
-	if err == nil {
-		return nil
-	} else if _, ok := err.(Error); ok {
-		return err
-	} else {
-		return Error{Message: err.Error(), kind: Unexpected}
-	}
-}

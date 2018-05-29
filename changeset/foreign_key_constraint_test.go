@@ -3,6 +3,7 @@ package changeset
 import (
 	"testing"
 
+	"github.com/Fs02/grimoire/errors"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -12,5 +13,5 @@ func TestForeignKeyConstraint(t *testing.T) {
 
 	ForeignKeyConstraint(ch, "field1")
 	assert.Equal(t, 1, len(ch.Constraints()))
-	assert.Equal(t, ForeignKeyConstraintKind, ch.Constraints()[0].Kind)
+	assert.Equal(t, errors.ForeignKeyConstraint, ch.Constraints()[0].Kind)
 }

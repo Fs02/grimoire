@@ -2,6 +2,8 @@ package changeset
 
 import (
 	"strings"
+
+	"github.com/Fs02/grimoire/errors"
 )
 
 // UniqueConstraintMessage is the default error message for UniqueConstraint.
@@ -17,9 +19,11 @@ func UniqueConstraint(ch *Changeset, field string, opts ...Option) {
 	options.apply(opts)
 
 	ch.constraints = append(ch.constraints, Constraint{
-		Name:    options.name,
+		Field:   field,
 		Message: strings.Replace(options.message, "{field}", field, 1),
+		Code:    options.code,
+		Name:    options.name,
 		Exact:   options.exact,
-		Kind:    UniqueConstraintKind,
+		Kind:    errors.UniqueConstraint,
 	})
 }

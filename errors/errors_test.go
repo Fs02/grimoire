@@ -1,7 +1,6 @@
 package errors
 
 import (
-	e "errors"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -42,10 +41,4 @@ func TestNewUnexpected(t *testing.T) {
 	}, err)
 
 	assert.Equal(t, Unexpected, err.Kind())
-}
-
-func TestWrap(t *testing.T) {
-	assert.Equal(t, nil, Wrap(nil))
-	assert.Equal(t, Error{}, Wrap(Error{}))
-	assert.Equal(t, Error{Message: "error", kind: Unexpected}, Wrap(e.New("error")))
 }

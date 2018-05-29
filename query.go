@@ -144,7 +144,7 @@ func (query Query) One(record interface{}) error {
 	count, err := query.repo.adapter.All(query, record, query.repo.logger...)
 
 	if err != nil {
-		return errors.Wrap(err)
+		return transformError(err)
 	} else if count == 0 {
 		return errors.New("no result found", "", errors.NotFound)
 	} else {
@@ -225,14 +225,14 @@ func (query Query) Insert(record interface{}, chs ...*changeset.Changeset) error
 	}
 
 	if err != nil {
-		return errors.Wrap(err)
+		return transformError(err, chs...)
 	} else if record == nil || len(ids) == 0 {
 		return nil
 	} else if len(ids) == 1 {
-		return errors.Wrap(query.Find(ids[0]).One(record))
+		return transformError(query.Find(ids[0]).One(record))
 	}
 
-	return errors.Wrap(query.Where(c.In(c.I("id"), ids...)).All(record))
+	return transformError(query.Where(c.In(c.I("id"), ids...)).All(record))
 }
 
 // MustInsert records to database.
@@ -262,12 +262,12 @@ func (query Query) Update(record interface{}, chs ...*changeset.Changeset) error
 	// perform update
 	err := query.repo.adapter.Update(query, changes, query.repo.logger...)
 	if err != nil {
-		return errors.Wrap(err)
+		return transformError(err, chs...)
 	}
 
 	// should not fetch updated record(s) if not necessery
 	if record != nil {
-		return errors.Wrap(query.All(record))
+		return transformError(query.All(record))
 	}
 
 	return nil
@@ -388,7 +388,7 @@ func (query Query) MustSave(record interface{}) {
 
 // Delete deletes all results that match the query.
 func (query Query) Delete() error {
-	return errors.Wrap(query.repo.adapter.Delete(query, query.repo.logger...))
+	return transformError(query.repo.adapter.Delete(query, query.repo.logger...))
 }
 
 // MustDelete deletes all results that match the query.
@@ -589,4 +589,17 @@ func getPreloadID(fv reflect.Value) interface{} {
 	}
 
 	return fv.Interface()
+}
+
+func transformError(err error, chs ...*changeset.Changeset) error {
+	if err == nil {
+		return nil
+	} else if err, ok := err.(errors.Error); ok {
+		if len(chs) > 0 {
+			return chs[0].Constraints().GetError(err)
+		}
+		return err
+	} else {
+		return errors.NewUnexpected(err.Error())
+	}
 }

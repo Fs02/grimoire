@@ -59,13 +59,14 @@ func errorFunc(err error) error {
 		return nil
 	}
 
-	e, _ := err.(*mysql.MySQLError)
-	switch e.Number {
-	case 1062:
-		return errors.New(e.Message, internal.ExtractString(e.Message, "key '", "'"), errors.UniqueConstraint)
-	case 1452:
-		return errors.New(e.Message, internal.ExtractString(e.Message, "CONSTRAINT `", "`"), errors.ForeignKeyConstraint)
-	default:
-		return err
+	if e, ok := err.(*mysql.MySQLError); ok {
+		switch e.Number {
+		case 1062:
+			return errors.New(e.Message, internal.ExtractString(e.Message, "key '", "'"), errors.UniqueConstraint)
+		case 1452:
+			return errors.New(e.Message, internal.ExtractString(e.Message, "CONSTRAINT `", "`"), errors.ForeignKeyConstraint)
+		}
 	}
+
+	return err
 }

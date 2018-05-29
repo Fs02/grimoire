@@ -91,15 +91,16 @@ func errorFunc(err error) error {
 		return nil
 	}
 
-	e, _ := err.(*pq.Error)
-	switch e.Code {
-	case "23505":
-		return errors.New(e.Message, internal.ExtractString(e.Message, "constraint \"", "\""), errors.UniqueConstraint)
-	case "23503":
-		return errors.New(e.Message, internal.ExtractString(e.Message, "constraint \"", "\""), errors.ForeignKeyConstraint)
-	case "23514":
-		return errors.New(e.Message, internal.ExtractString(e.Message, "constraint \"", "\""), errors.CheckConstraint)
-	default:
-		return err
+	if e, ok := err.(*pq.Error); ok {
+		switch e.Code {
+		case "23505":
+			return errors.New(e.Message, internal.ExtractString(e.Message, "constraint \"", "\""), errors.UniqueConstraint)
+		case "23503":
+			return errors.New(e.Message, internal.ExtractString(e.Message, "constraint \"", "\""), errors.ForeignKeyConstraint)
+		case "23514":
+			return errors.New(e.Message, internal.ExtractString(e.Message, "constraint \"", "\""), errors.CheckConstraint)
+		}
 	}
+
+	return err
 }
