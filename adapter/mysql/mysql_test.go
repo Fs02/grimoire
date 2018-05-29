@@ -138,7 +138,7 @@ func TestAdapter_Transaction_rollbackError(t *testing.T) {
 	assert.NotNil(t, adapter.Rollback())
 }
 
-func TestAdapter_QueryError(t *testing.T) {
+func TestAdapter_Query_error(t *testing.T) {
 	adapter, err := Open(dsn())
 	paranoid.Panic(err, "failed to open database connection")
 	defer adapter.Close()
