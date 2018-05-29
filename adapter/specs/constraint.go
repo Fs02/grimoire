@@ -27,8 +27,8 @@ func UniqueConstraint(t *testing.T, repo grimoire.Repo) {
 
 // ForeignKeyConstraint tests foreign key constraint specifications.
 func ForeignKeyConstraint(t *testing.T, repo grimoire.Repo) {
-	extra := Extra{}
-	repo.From(extras).MustSave(&extra)
+	fkExtra := Extra{}
+	repo.From(extras).MustSave(&fkExtra)
 
 	t.Run("ForeignKeyConstraint", func(t *testing.T) {
 		// inserting
@@ -36,15 +36,15 @@ func ForeignKeyConstraint(t *testing.T, repo grimoire.Repo) {
 		assertConstraint(t, err, errors.ForeignKeyConstraint, "user_id")
 
 		// updating
-		err = repo.From(extras).Find(extra.ID).Set("user_id", 1000).Update(nil)
+		err = repo.From(extras).Find(fkExtra.ID).Set("user_id", 1000).Update(nil)
 		assertConstraint(t, err, errors.ForeignKeyConstraint, "user_id")
 	})
 }
 
 // CheckConstraint tests foreign key constraint specifications.
 func CheckConstraint(t *testing.T, repo grimoire.Repo) {
-	extra := Extra{}
-	repo.From(extras).MustSave(&extra)
+	checkExtra := Extra{}
+	repo.From(extras).MustSave(&checkExtra)
 
 	t.Run("CheckConstraint", func(t *testing.T) {
 		// inserting
@@ -52,7 +52,7 @@ func CheckConstraint(t *testing.T, repo grimoire.Repo) {
 		assertConstraint(t, err, errors.CheckConstraint, "score")
 
 		// updating
-		err = repo.From(extras).Find(extra.ID).Set("score", 150).Update(nil)
+		err = repo.From(extras).Find(checkExtra.ID).Set("score", 150).Update(nil)
 		assertConstraint(t, err, errors.CheckConstraint, "score")
 	})
 }
