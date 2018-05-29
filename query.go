@@ -594,11 +594,11 @@ func getPreloadID(fv reflect.Value) interface{} {
 func transformError(err error, chs ...*changeset.Changeset) error {
 	if err == nil {
 		return nil
-	} else if err, ok := err.(errors.Error); ok {
+	} else if e, ok := err.(errors.Error); ok {
 		if len(chs) > 0 {
-			return chs[0].Constraints().GetError(err)
+			return chs[0].Constraints().GetError(e)
 		}
-		return err
+		return e
 	} else {
 		return errors.NewUnexpected(err.Error())
 	}

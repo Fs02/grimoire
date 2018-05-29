@@ -1,6 +1,7 @@
 package grimoire
 
 import (
+	"fmt"
 	"testing"
 	"time"
 
@@ -1354,4 +1355,8 @@ func TestPreloadQueryError(t *testing.T) {
 	assert.NotNil(t, query.Preload(&user, "Address"))
 	assert.Panics(t, func() { query.MustPreload(&user, "Address") })
 	mock.AssertExpectations(t)
+}
+
+func TestTransformError_unknown(t *testing.T) {
+	assert.Equal(t, errors.NewUnexpected("error"), transformError(fmt.Errorf("error")))
 }
