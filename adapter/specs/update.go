@@ -65,7 +65,7 @@ func UpdateWhere(t *testing.T, repo grimoire.Repo) {
 		ch := changeset.Cast(test.schema, test.params, []string{"name", "age", "note", "address", "user_id"})
 		statement, _ := builder.Update(test.query.Collection, ch.Changes(), test.query.Condition)
 
-		t.Run("Update|"+statement, func(t *testing.T) {
+		t.Run("UpdateWhere|"+statement, func(t *testing.T) {
 			assert.Nil(t, ch.Error())
 
 			assert.Nil(t, test.query.Update(nil, ch))
@@ -96,7 +96,7 @@ func UpdateSet(t *testing.T, repo grimoire.Repo) {
 	for _, test := range tests {
 		statement, _ := builder.Update(test.query.Collection, test.query.Changes, test.query.Condition)
 
-		t.Run("Update|"+statement, func(t *testing.T) {
+		t.Run("UpdateSet|"+statement, func(t *testing.T) {
 			assert.Nil(t, test.query.Update(nil))
 			assert.Nil(t, test.query.Update(test.record))
 		})
