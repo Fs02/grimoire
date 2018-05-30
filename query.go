@@ -459,7 +459,7 @@ func (query Query) Preload(record interface{}, field string) error {
 }
 
 // MustPreload loads association with given query.
-// It'll panic if any error occured.
+// It'll panic if any error occurred.
 func (query Query) MustPreload(record interface{}, field string) {
 	paranoid.Panic(query.Preload(record, field), "grimoire: failed when preloading %s to %T", field, record)
 }
