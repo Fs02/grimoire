@@ -245,15 +245,34 @@ func (builder *Builder) Delete(collection string, cond c.Condition) (string, []i
 }
 
 func (builder *Builder) fields(distinct bool, fields ...string) string {
-	if distinct {
-		return "SELECT DISTINCT " + strings.Join(fields, ", ")
+	if len(fields) == 0 {
+		return "SELECT *"
+	} else if fields[0] == "COUNT(*) AS count" {
+		return "SELECT COUNT(*) AS count"
 	}
 
-	return "SELECT " + strings.Join(fields, ", ")
+	var buffer bytes.Buffer
+
+	buffer.WriteString("SELECT ")
+
+	if distinct {
+		buffer.WriteString("DISTINCT ")
+	}
+
+	l := len(fields) - 1
+	for i, f := range fields {
+		buffer.WriteString(builder.escape(f))
+
+		if i < l {
+			buffer.WriteString(",")
+		}
+	}
+
+	return buffer.String()
 }
 
 func (builder *Builder) from(collection string) string {
-	return "FROM " + collection
+	return "FROM " + builder.config.EscapeChar + collection + builder.config.EscapeChar
 }
 
 func (builder *Builder) join(join ...c.Join) (string, []interface{}) {
@@ -265,7 +284,7 @@ func (builder *Builder) join(join ...c.Join) (string, []interface{}) {
 	var args []interface{}
 	for i, j := range join {
 		cs, jargs := builder.condition(j.Condition)
-		qs += j.Mode + " " + j.Collection + " ON " + cs
+		qs += j.Mode + " " + builder.config.EscapeChar + j.Collection + builder.config.EscapeChar + " ON " + cs
 		args = append(args, jargs...)
 
 		if i < len(join)-1 {
@@ -286,11 +305,23 @@ func (builder *Builder) where(condition c.Condition) (string, []interface{}) {
 }
 
 func (builder *Builder) groupBy(fields ...string) string {
-	if len(fields) > 0 {
-		return "GROUP BY " + strings.Join(fields, ", ")
+	if len(fields) == 0 {
+		return ""
 	}
 
-	return ""
+	var buffer bytes.Buffer
+	buffer.WriteString("GROUP BY ")
+
+	l := len(fields) - 1
+	for i, f := range fields {
+		buffer.WriteString(builder.escape(f))
+
+		if i < l {
+			buffer.WriteString(",")
+		}
+	}
+
+	return buffer.String()
 }
 
 func (builder *Builder) having(condition c.Condition) (string, []interface{}) {
@@ -311,9 +342,9 @@ func (builder *Builder) orderBy(orders ...c.Order) string {
 	qs := "ORDER BY "
 	for i, o := range orders {
 		if o.Asc() {
-			qs += string(o.Field) + " ASC"
+			qs += builder.escape(string(o.Field)) + " ASC"
 		} else {
-			qs += string(o.Field) + " DESC"
+			qs += builder.escape(string(o.Field)) + " DESC"
 		}
 
 		if i < length-1 {
@@ -357,16 +388,16 @@ func (builder *Builder) condition(cond c.Condition) (string, []interface{}) {
 		c.ConditionGte:
 		return builder.buildComparison(cond)
 	case c.ConditionNil:
-		return string(cond.Left.Column) + " IS NULL", cond.Right.Values
+		return builder.escape(string(cond.Left.Column)) + " IS NULL", cond.Right.Values
 	case c.ConditionNotNil:
-		return string(cond.Left.Column) + " IS NOT NULL", cond.Right.Values
+		return builder.escape(string(cond.Left.Column)) + " IS NOT NULL", cond.Right.Values
 	case c.ConditionIn,
 		c.ConditionNin:
 		return builder.buildInclusion(cond)
 	case c.ConditionLike:
-		return string(cond.Left.Column) + " LIKE " + builder.ph(), cond.Right.Values
+		return builder.escape(string(cond.Left.Column)) + " LIKE " + builder.ph(), cond.Right.Values
 	case c.ConditionNotLike:
-		return string(cond.Left.Column) + " NOT LIKE " + builder.ph(), cond.Right.Values
+		return builder.escape(string(cond.Left.Column)) + " NOT LIKE " + builder.ph(), cond.Right.Values
 	case c.ConditionFragment:
 		return string(cond.Left.Column), cond.Right.Values
 	}
@@ -420,13 +451,13 @@ func (builder *Builder) buildComparison(cond c.Condition) (string, []interface{}
 	}
 
 	if cond.Left.Column != "" {
-		cs = string(cond.Left.Column) + op
+		cs = builder.escape(string(cond.Left.Column)) + op
 	} else {
 		cs = builder.ph() + op
 	}
 
 	if cond.Right.Column != "" {
-		cs += string(cond.Right.Column)
+		cs += builder.escape(string(cond.Right.Column))
 	} else {
 		cs += builder.ph()
 	}
@@ -436,7 +467,7 @@ func (builder *Builder) buildComparison(cond c.Condition) (string, []interface{}
 
 func (builder *Builder) buildInclusion(cond c.Condition) (string, []interface{}) {
 	var buffer bytes.Buffer
-	buffer.WriteString(string(cond.Left.Column))
+	buffer.WriteString(builder.escape(string(cond.Left.Column)))
 
 	if cond.Type == c.ConditionIn {
 		buffer.WriteString(" IN (")
@@ -461,6 +492,20 @@ func (builder *Builder) ph() string {
 	}
 
 	return builder.config.Placeholder
+}
+
+func (builder *Builder) escape(field string) string {
+	if strings.HasSuffix(field, "*") {
+		if len(field) == 1 {
+			return field
+		}
+
+		return builder.config.EscapeChar + strings.Replace(field, ".", builder.config.EscapeChar+".", 1)
+	}
+
+	return builder.config.EscapeChar +
+		strings.Replace(field, ".", builder.config.EscapeChar+"."+builder.config.EscapeChar, 1) +
+		builder.config.EscapeChar
 }
 
 // Returning append returning to insert query.
