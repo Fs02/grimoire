@@ -64,7 +64,10 @@ func TestBuilder_Find(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.QueryString, func(t *testing.T) {
-			qs, args := NewBuilder("?", false, false).Find(tt.Query)
+			qs, args := NewBuilder(&Config{
+				Placeholder: "?",
+				EscapeRune:  '`',
+			}).Find(tt.Query)
 			assert.Equal(t, tt.QueryString, qs)
 			assert.Equal(t, tt.Args, args)
 		})
@@ -126,7 +129,12 @@ func TestBuilder_Find_ordinal(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.QueryString, func(t *testing.T) {
-			qs, args := NewBuilder("$", true, true).Find(tt.Query)
+			qs, args := NewBuilder(&Config{
+				Placeholder:         "$",
+				EscapeRune:          '"',
+				Ordinal:             true,
+				InsertDefaultValues: true,
+			}).Find(tt.Query)
 			assert.Equal(t, tt.QueryString, qs)
 			assert.Equal(t, tt.Args, args)
 		})
@@ -139,23 +147,35 @@ func TestBuilder_Insert(t *testing.T) {
 	}
 	args := []interface{}{"foo"}
 
-	qs, qargs := NewBuilder("?", false, false).Insert("users", changes)
-	assert.Equal(t, "INSERT INTO users (name) VALUES (?);", qs)
+	qs, qargs := NewBuilder(&Config{
+		Placeholder: "?",
+		EscapeRune:  '`',
+	}).Insert("users", changes)
+	assert.Equal(t, "INSERT INTO `users` (`name`) VALUES (?);", qs)
 	assert.Equal(t, args, qargs)
 
-	qs, qargs = NewBuilder("$", true, true).Returning("id").Insert("users", changes)
-	assert.Equal(t, "INSERT INTO users (name) VALUES ($1) RETURNING id;", qs)
+	qs, qargs = NewBuilder(&Config{
+		Placeholder:         "$",
+		EscapeRune:          '"',
+		Ordinal:             true,
+		InsertDefaultValues: true,
+	}).Returning("id").Insert("users", changes)
+
+	assert.Equal(t, "INSERT INTO \"users\" (\"name\") VALUES ($1) RETURNING \"id\";", qs)
 	assert.Equal(t, args, qargs)
 
 	// test for multiple changes since map is randomly ordered
 	changes["age"] = 10
 	changes["agree"] = true
-	qs, _ = NewBuilder("?", false, false).Insert("users", changes)
+	qs, _ = NewBuilder(&Config{
+		Placeholder: "?",
+		EscapeRune:  '`',
+	}).Insert("users", changes)
 
-	assert.True(t, strings.HasPrefix(qs, "INSERT INTO users ("))
-	assert.True(t, strings.Contains(qs, "name"))
-	assert.True(t, strings.Contains(qs, "age"))
-	assert.True(t, strings.Contains(qs, "agree"))
+	assert.True(t, strings.HasPrefix(qs, "INSERT INTO `users` ("))
+	assert.True(t, strings.Contains(qs, "`name`"))
+	assert.True(t, strings.Contains(qs, "`age`"))
+	assert.True(t, strings.Contains(qs, "`agree`"))
 	assert.True(t, strings.HasSuffix(qs, ";"))
 }
 
@@ -163,12 +183,19 @@ func TestBuilder_Insert_defaultValues(t *testing.T) {
 	changes := map[string]interface{}{}
 	args := []interface{}{}
 
-	qs, qargs := NewBuilder("?", false, false).Insert("users", changes)
-	assert.Equal(t, "INSERT INTO users () VALUES ();", qs)
+	qs, qargs := NewBuilder(&Config{
+		Placeholder: "?",
+		EscapeRune:  '`',
+	}).Insert("users", changes)
+	assert.Equal(t, "INSERT INTO `users` () VALUES ();", qs)
 	assert.Equal(t, args, qargs)
 
-	qs, qargs = NewBuilder("$", false, true).Returning("id").Insert("users", changes)
-	assert.Equal(t, "INSERT INTO users DEFAULT VALUES RETURNING id;", qs)
+	qs, qargs = NewBuilder(&Config{
+		Placeholder:         "?",
+		InsertDefaultValues: true,
+		EscapeRune:          '`',
+	}).Returning("id").Insert("users", changes)
+	assert.Equal(t, "INSERT INTO `users` DEFAULT VALUES RETURNING `id`;", qs)
 	assert.Equal(t, args, qargs)
 }
 
@@ -180,23 +207,39 @@ func TestBuilder_InsertAll(t *testing.T) {
 		{"name": "boo"},
 	}
 
-	statement, args := NewBuilder("?", false, false).InsertAll("users", fields, allchanges)
+	statement, args := NewBuilder(&Config{
+		Placeholder: "?",
+		EscapeRune:  '`',
+	}).InsertAll("users", fields, allchanges)
 	assert.Equal(t, "INSERT INTO users (name) VALUES (?),(DEFAULT),(?);", statement)
 	assert.Equal(t, []interface{}{"foo", "boo"}, args)
 
 	// ordinal
-	statement, args = NewBuilder("$", true, true).Returning("id").InsertAll("users", fields, allchanges)
+	statement, args = NewBuilder(&Config{
+		Placeholder:         "$",
+		EscapeRune:          '"',
+		Ordinal:             true,
+		InsertDefaultValues: true,
+	}).Returning("id").InsertAll("users", fields, allchanges)
 	assert.Equal(t, "INSERT INTO users (name) VALUES ($1),(DEFAULT),($2) RETURNING id;", statement)
 	assert.Equal(t, []interface{}{"foo", "boo"}, args)
 
 	// with age
 	fields = append(fields, "age")
-	statement, args = NewBuilder("?", false, false).InsertAll("users", fields, allchanges)
+	statement, args = NewBuilder(&Config{
+		Placeholder: "?",
+		EscapeRune:  '`',
+	}).InsertAll("users", fields, allchanges)
 	assert.Equal(t, "INSERT INTO users (name,age) VALUES (?,DEFAULT),(DEFAULT,?),(?,DEFAULT);", statement)
 	assert.Equal(t, []interface{}{"foo", 12, "boo"}, args)
 
 	// ordinal
-	statement, args = NewBuilder("$", true, true).Returning("id").InsertAll("users", fields, allchanges)
+	statement, args = NewBuilder(&Config{
+		Placeholder:         "$",
+		EscapeRune:          '"',
+		Ordinal:             true,
+		InsertDefaultValues: true,
+	}).Returning("id").InsertAll("users", fields, allchanges)
 	assert.Equal(t, "INSERT INTO users (name,age) VALUES ($1,DEFAULT),(DEFAULT,$2),($3,DEFAULT) RETURNING id;", statement)
 	assert.Equal(t, []interface{}{"foo", 12, "boo"}, args)
 
@@ -207,12 +250,20 @@ func TestBuilder_InsertAll(t *testing.T) {
 		{"name": "boo", "age": 20},
 	}
 
-	statement, args = NewBuilder("?", false, false).InsertAll("users", fields, allchanges)
+	statement, args = NewBuilder(&Config{
+		Placeholder: "?",
+		EscapeRune:  '`',
+	}).InsertAll("users", fields, allchanges)
 	assert.Equal(t, "INSERT INTO users (name,age) VALUES (?,?),(?,?),(?,?);", statement)
 	assert.Equal(t, []interface{}{"foo", 10, "zoo", 12, "boo", 20}, args)
 
 	// ordinal
-	statement, args = NewBuilder("$", true, true).InsertAll("users", fields, allchanges)
+	statement, args = NewBuilder(&Config{
+		Placeholder:         "$",
+		EscapeRune:          '"',
+		Ordinal:             true,
+		InsertDefaultValues: true,
+	}).InsertAll("users", fields, allchanges)
 	assert.Equal(t, "INSERT INTO users (name,age) VALUES ($1,$2),($3,$4),($5,$6);", statement)
 	assert.Equal(t, []interface{}{"foo", 10, "zoo", 12, "boo", 20}, args)
 }
@@ -224,29 +275,50 @@ func TestBuilder_Udate(t *testing.T) {
 	args := []interface{}{"foo"}
 	cond := And()
 
-	qs, qargs := NewBuilder("?", false, false).Update("users", changes, cond)
+	qs, qargs := NewBuilder(&Config{
+		Placeholder: "?",
+		EscapeRune:  '`',
+	}).Update("users", changes, cond)
 	assert.Equal(t, "UPDATE users SET name=?;", qs)
 	assert.Equal(t, args, qargs)
 
-	qs, qargs = NewBuilder("$", true, true).Update("users", changes, cond)
+	qs, qargs = NewBuilder(&Config{
+		Placeholder:         "$",
+		EscapeRune:          '"',
+		Ordinal:             true,
+		InsertDefaultValues: true,
+	}).Update("users", changes, cond)
 	assert.Equal(t, "UPDATE users SET name=$1;", qs)
 	assert.Equal(t, args, qargs)
 
 	args = []interface{}{"foo", 1}
 	cond = Eq(I("id"), 1)
 
-	qs, qargs = NewBuilder("?", false, false).Update("users", changes, cond)
+	qs, qargs = NewBuilder(&Config{
+		Placeholder: "?",
+		EscapeRune:  '`',
+	}).Update("users", changes, cond)
 	assert.Equal(t, "UPDATE users SET name=? WHERE id=?;", qs)
 	assert.Equal(t, args, qargs)
 
-	qs, qargs = NewBuilder("$", true, true).Update("users", changes, cond)
+	qs, qargs = NewBuilder(&Config{
+		Placeholder:         "$",
+		EscapeRune:          '"',
+		Ordinal:             true,
+		InsertDefaultValues: true,
+	}).Update("users", changes, cond)
 	assert.Equal(t, "UPDATE users SET name=$1 WHERE id=$2;", qs)
 	assert.Equal(t, args, qargs)
 
 	// test for multiple changes since map is randomly ordered
 	changes["age"] = 10
 	changes["agree"] = true
-	qs, _ = NewBuilder("$", true, true).Update("users", changes, And())
+	qs, _ = NewBuilder(&Config{
+		Placeholder:         "$",
+		EscapeRune:          '"',
+		Ordinal:             true,
+		InsertDefaultValues: true,
+	}).Update("users", changes, And())
 
 	assert.True(t, strings.HasPrefix(qs, "UPDATE users SET "))
 	assert.True(t, strings.Contains(qs, "name"))
@@ -256,29 +328,55 @@ func TestBuilder_Udate(t *testing.T) {
 }
 
 func TestBuilder_Delete(t *testing.T) {
-	qs, args := NewBuilder("?", false, false).Delete("users", And())
+	qs, args := NewBuilder(&Config{
+		Placeholder: "?",
+		EscapeRune:  '`',
+	}).Delete("users", And())
 	assert.Equal(t, "DELETE FROM users;", qs)
 	assert.Equal(t, []interface{}(nil), args)
 
-	qs, args = NewBuilder("?", false, false).Delete("users", Eq(I("id"), 1))
+	qs, args = NewBuilder(&Config{
+		Placeholder: "?",
+		EscapeRune:  '`',
+	}).Delete("users", Eq(I("id"), 1))
 	assert.Equal(t, "DELETE FROM users WHERE id=?;", qs)
 	assert.Equal(t, []interface{}{1}, args)
 
-	qs, args = NewBuilder("$", true, true).Delete("users", Eq(I("id"), 1))
+	qs, args = NewBuilder(&Config{
+		Placeholder:         "$",
+		EscapeRune:          '"',
+		Ordinal:             true,
+		InsertDefaultValues: true,
+	}).Delete("users", Eq(I("id"), 1))
 	assert.Equal(t, "DELETE FROM users WHERE id=$1;", qs)
 	assert.Equal(t, []interface{}{1}, args)
 }
 
 func TestBuilder_Select(t *testing.T) {
-	assert.Equal(t, "SELECT *", NewBuilder("?", false, false).fields(false, "*"))
-	assert.Equal(t, "SELECT id, name", NewBuilder("?", false, false).fields(false, "id", "name"))
+	assert.Equal(t, "SELECT *", NewBuilder(&Config{
+		Placeholder: "?",
+		EscapeRune:  '`',
+	}).fields(false, "*"))
+	assert.Equal(t, "SELECT id, name", NewBuilder(&Config{
+		Placeholder: "?",
+		EscapeRune:  '`',
+	}).fields(false, "id", "name"))
 
-	assert.Equal(t, "SELECT DISTINCT *", NewBuilder("?", false, false).fields(true, "*"))
-	assert.Equal(t, "SELECT DISTINCT id, name", NewBuilder("?", false, false).fields(true, "id", "name"))
+	assert.Equal(t, "SELECT DISTINCT *", NewBuilder(&Config{
+		Placeholder: "?",
+		EscapeRune:  '`',
+	}).fields(true, "*"))
+	assert.Equal(t, "SELECT DISTINCT id, name", NewBuilder(&Config{
+		Placeholder: "?",
+		EscapeRune:  '`',
+	}).fields(true, "id", "name"))
 }
 
 func TestBuilder_From(t *testing.T) {
-	assert.Equal(t, "FROM users", NewBuilder("?", false, false).from("users"))
+	assert.Equal(t, "FROM users", NewBuilder(&Config{
+		Placeholder: "?",
+		EscapeRune:  '`',
+	}).from("users"))
 }
 
 func TestBuilder_Join(t *testing.T) {
@@ -312,7 +410,10 @@ func TestBuilder_Join(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.QueryString, func(t *testing.T) {
-			qs, args := NewBuilder("?", false, false).join(tt.JoinClause...)
+			qs, args := NewBuilder(&Config{
+				Placeholder: "?",
+				EscapeRune:  '`',
+			}).join(tt.JoinClause...)
 			assert.Equal(t, tt.QueryString, qs)
 			assert.Equal(t, tt.Args, args)
 		})
@@ -344,7 +445,10 @@ func TestBuilder_Where(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.QueryString, func(t *testing.T) {
-			qs, args := NewBuilder("?", false, false).where(tt.Condition)
+			qs, args := NewBuilder(&Config{
+				Placeholder: "?",
+				EscapeRune:  '`',
+			}).where(tt.Condition)
 			assert.Equal(t, tt.QueryString, qs)
 			assert.Equal(t, tt.Args, args)
 		})
@@ -376,7 +480,12 @@ func TestBuilder_Where_ordinal(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.QueryString, func(t *testing.T) {
-			qs, args := NewBuilder("$", true, true).where(tt.Condition)
+			qs, args := NewBuilder(&Config{
+				Placeholder:         "$",
+				EscapeRune:          '"',
+				Ordinal:             true,
+				InsertDefaultValues: true,
+			}).where(tt.Condition)
 			assert.Equal(t, tt.QueryString, qs)
 			assert.Equal(t, tt.Args, args)
 		})
@@ -384,9 +493,18 @@ func TestBuilder_Where_ordinal(t *testing.T) {
 }
 
 func TestBuilder_GroupBy(t *testing.T) {
-	assert.Equal(t, "", NewBuilder("?", false, false).groupBy())
-	assert.Equal(t, "GROUP BY city", NewBuilder("?", false, false).groupBy("city"))
-	assert.Equal(t, "GROUP BY city, nation", NewBuilder("?", false, false).groupBy("city", "nation"))
+	assert.Equal(t, "", NewBuilder(&Config{
+		Placeholder: "?",
+		EscapeRune:  '`',
+	}).groupBy())
+	assert.Equal(t, "GROUP BY city", NewBuilder(&Config{
+		Placeholder: "?",
+		EscapeRune:  '`',
+	}).groupBy("city"))
+	assert.Equal(t, "GROUP BY city, nation", NewBuilder(&Config{
+		Placeholder: "?",
+		EscapeRune:  '`',
+	}).groupBy("city", "nation"))
 }
 
 func TestBuilder_Having(t *testing.T) {
@@ -414,7 +532,10 @@ func TestBuilder_Having(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.QueryString, func(t *testing.T) {
-			qs, args := NewBuilder("?", false, false).having(tt.Condition)
+			qs, args := NewBuilder(&Config{
+				Placeholder: "?",
+				EscapeRune:  '`',
+			}).having(tt.Condition)
 			assert.Equal(t, tt.QueryString, qs)
 			assert.Equal(t, tt.Args, args)
 		})
@@ -446,7 +567,13 @@ func TestBuilder_Having_ordinal(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.QueryString, func(t *testing.T) {
-			qs, args := NewBuilder("$", true, true).having(tt.Condition)
+			qs, args := NewBuilder(&Config{
+				Placeholder:         "$",
+				EscapeRune:          '"',
+				Ordinal:             true,
+				InsertDefaultValues: true,
+			}).having(tt.Condition)
+
 			assert.Equal(t, tt.QueryString, qs)
 			assert.Equal(t, tt.Args, args)
 		})
@@ -454,19 +581,44 @@ func TestBuilder_Having_ordinal(t *testing.T) {
 }
 
 func TestBuilder_OrderBy(t *testing.T) {
-	assert.Equal(t, "", NewBuilder("?", false, false).orderBy())
-	assert.Equal(t, "ORDER BY name ASC", NewBuilder("?", false, false).orderBy(Asc("name")))
-	assert.Equal(t, "ORDER BY name ASC, created_at DESC", NewBuilder("?", false, false).orderBy(Asc("name"), Desc("created_at")))
+	assert.Equal(t, "", NewBuilder(&Config{
+		Placeholder: "?",
+		EscapeRune:  '`',
+	}).orderBy())
+
+	assert.Equal(t, "ORDER BY name ASC", NewBuilder(&Config{
+		Placeholder: "?",
+		EscapeRune:  '`',
+	}).orderBy(Asc("name")))
+
+	assert.Equal(t, "ORDER BY name ASC, created_at DESC", NewBuilder(&Config{
+		Placeholder: "?",
+		EscapeRune:  '`',
+	}).orderBy(Asc("name"), Desc("created_at")))
 }
 
 func TestBuilder_Offset(t *testing.T) {
-	assert.Equal(t, "", NewBuilder("?", false, false).offset(0))
-	assert.Equal(t, "OFFSET 10", NewBuilder("?", false, false).offset(10))
+	assert.Equal(t, "", NewBuilder(&Config{
+		Placeholder: "?",
+		EscapeRune:  '`',
+	}).offset(0))
+
+	assert.Equal(t, "OFFSET 10", NewBuilder(&Config{
+		Placeholder: "?",
+		EscapeRune:  '`',
+	}).offset(10))
 }
 
 func TestBuilder_Limit(t *testing.T) {
-	assert.Equal(t, "", NewBuilder("?", false, false).limit(0))
-	assert.Equal(t, "LIMIT 10", NewBuilder("?", false, false).limit(10))
+	assert.Equal(t, "", NewBuilder(&Config{
+		Placeholder: "?",
+		EscapeRune:  '`',
+	}).limit(0))
+
+	assert.Equal(t, "LIMIT 10", NewBuilder(&Config{
+		Placeholder: "?",
+		EscapeRune:  '`',
+	}).limit(10))
 }
 
 func TestBuilder_Condition(t *testing.T) {
@@ -694,7 +846,11 @@ func TestBuilder_Condition(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.QueryString, func(t *testing.T) {
-			qs, args := NewBuilder("?", false, false).condition(tt.Condition)
+			qs, args := NewBuilder(&Config{
+				Placeholder: "?",
+				EscapeRune:  '`',
+			}).condition(tt.Condition)
+
 			assert.Equal(t, tt.QueryString, qs)
 			assert.Equal(t, tt.Args, args)
 		})
@@ -926,7 +1082,13 @@ func TestBuilder_Condition_ordinal(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.QueryString, func(t *testing.T) {
-			qs, args := NewBuilder("$", true, true).condition(tt.Condition)
+			qs, args := NewBuilder(&Config{
+				Placeholder:         "$",
+				EscapeRune:          '"',
+				Ordinal:             true,
+				InsertDefaultValues: true,
+			}).condition(tt.Condition)
+
 			assert.Equal(t, tt.QueryString, qs)
 			assert.Equal(t, tt.Args, args)
 		})

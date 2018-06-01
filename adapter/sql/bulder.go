@@ -11,11 +11,9 @@ import (
 
 // Builder defines information of query builder.
 type Builder struct {
-	Placeholder         string
-	Ordinal             bool
-	ReturnField         string
-	InsertDefaultValues bool
-	count               int
+	config      *Config
+	returnField string
+	count       int
 }
 
 // Find generates query for select.
@@ -83,16 +81,21 @@ func (builder *Builder) Insert(collection string, changes map[string]interface{}
 	var args = make([]interface{}, 0, length)
 
 	buffer.WriteString("INSERT INTO ")
+	buffer.WriteRune(builder.config.EscapeRune)
 	buffer.WriteString(collection)
+	buffer.WriteRune(builder.config.EscapeRune)
 
-	if len(changes) == 0 && builder.InsertDefaultValues {
+	if len(changes) == 0 && builder.config.InsertDefaultValues {
 		buffer.WriteString(" DEFAULT VALUES")
 	} else {
 		buffer.WriteString(" (")
 
 		curr := 0
 		for field, value := range changes {
+			buffer.WriteRune(builder.config.EscapeRune)
 			buffer.WriteString(field)
+			buffer.WriteRune(builder.config.EscapeRune)
+
 			args = append(args, value)
 
 			if curr < length-1 {
@@ -114,9 +117,11 @@ func (builder *Builder) Insert(collection string, changes map[string]interface{}
 		buffer.WriteString(")")
 	}
 
-	if builder.ReturnField != "" {
+	if builder.returnField != "" {
 		buffer.WriteString(" RETURNING ")
-		buffer.WriteString(builder.ReturnField)
+		buffer.WriteRune(builder.config.EscapeRune)
+		buffer.WriteString(builder.returnField)
+		buffer.WriteRune(builder.config.EscapeRune)
 	}
 
 	buffer.WriteString(";")
@@ -158,9 +163,9 @@ func (builder *Builder) InsertAll(collection string, fields []string, allchanges
 		}
 	}
 
-	if builder.ReturnField != "" {
+	if builder.returnField != "" {
 		buffer.WriteString(" RETURNING ")
-		buffer.WriteString(builder.ReturnField)
+		buffer.WriteString(builder.returnField)
 	}
 
 	buffer.WriteString(";")
@@ -434,25 +439,23 @@ func (builder *Builder) buildInclusion(cond c.Condition) (string, []interface{})
 }
 
 func (builder *Builder) ph() string {
-	if builder.Ordinal {
+	if builder.config.Ordinal {
 		builder.count++
-		return builder.Placeholder + strconv.Itoa(builder.count)
+		return builder.config.Placeholder + strconv.Itoa(builder.count)
 	}
 
-	return builder.Placeholder
+	return builder.config.Placeholder
 }
 
 // Returning append returning to insert query.
 func (builder *Builder) Returning(field string) *Builder {
-	builder.ReturnField = field
+	builder.returnField = field
 	return builder
 }
 
 // NewBuilder create new SQL builder.
-func NewBuilder(placeholder string, ordinal bool, insertDefaultValues bool) *Builder {
+func NewBuilder(config *Config) *Builder {
 	return &Builder{
-		Placeholder:         placeholder,
-		Ordinal:             ordinal,
-		InsertDefaultValues: insertDefaultValues,
+		config: config,
 	}
 }
