@@ -81,9 +81,9 @@ func (builder *Builder) Insert(collection string, changes map[string]interface{}
 	var args = make([]interface{}, 0, length)
 
 	buffer.WriteString("INSERT INTO ")
-	buffer.WriteRune(builder.config.EscapeRune)
+	buffer.WriteString(builder.config.EscapeChar)
 	buffer.WriteString(collection)
-	buffer.WriteRune(builder.config.EscapeRune)
+	buffer.WriteString(builder.config.EscapeChar)
 
 	if len(changes) == 0 && builder.config.InsertDefaultValues {
 		buffer.WriteString(" DEFAULT VALUES")
@@ -92,9 +92,9 @@ func (builder *Builder) Insert(collection string, changes map[string]interface{}
 
 		curr := 0
 		for field, value := range changes {
-			buffer.WriteRune(builder.config.EscapeRune)
+			buffer.WriteString(builder.config.EscapeChar)
 			buffer.WriteString(field)
-			buffer.WriteRune(builder.config.EscapeRune)
+			buffer.WriteString(builder.config.EscapeChar)
 
 			args = append(args, value)
 
@@ -119,9 +119,9 @@ func (builder *Builder) Insert(collection string, changes map[string]interface{}
 
 	if builder.returnField != "" {
 		buffer.WriteString(" RETURNING ")
-		buffer.WriteRune(builder.config.EscapeRune)
+		buffer.WriteString(builder.config.EscapeChar)
 		buffer.WriteString(builder.returnField)
-		buffer.WriteRune(builder.config.EscapeRune)
+		buffer.WriteString(builder.config.EscapeChar)
 	}
 
 	buffer.WriteString(";")
@@ -135,9 +135,17 @@ func (builder *Builder) InsertAll(collection string, fields []string, allchanges
 	var args = make([]interface{}, 0, len(fields)*len(allchanges))
 
 	buffer.WriteString("INSERT INTO ")
+
+	buffer.WriteString(builder.config.EscapeChar)
 	buffer.WriteString(collection)
+	buffer.WriteString(builder.config.EscapeChar)
+
+	sep := builder.config.EscapeChar + "," + builder.config.EscapeChar
+
 	buffer.WriteString(" (")
-	buffer.WriteString(strings.Join(fields, ","))
+	buffer.WriteString(builder.config.EscapeChar)
+	buffer.WriteString(strings.Join(fields, sep))
+	buffer.WriteString(builder.config.EscapeChar)
 	buffer.WriteString(") VALUES ")
 
 	for i, changes := range allchanges {
@@ -165,7 +173,9 @@ func (builder *Builder) InsertAll(collection string, fields []string, allchanges
 
 	if builder.returnField != "" {
 		buffer.WriteString(" RETURNING ")
+		buffer.WriteString(builder.config.EscapeChar)
 		buffer.WriteString(builder.returnField)
+		buffer.WriteString(builder.config.EscapeChar)
 	}
 
 	buffer.WriteString(";")
@@ -181,12 +191,16 @@ func (builder *Builder) Update(collection string, changes map[string]interface{}
 	var args = make([]interface{}, 0, length)
 
 	buffer.WriteString("UPDATE ")
+	buffer.WriteString(builder.config.EscapeChar)
 	buffer.WriteString(collection)
+	buffer.WriteString(builder.config.EscapeChar)
 	buffer.WriteString(" SET ")
 
 	curr := 0
 	for field, value := range changes {
+		buffer.WriteString(builder.config.EscapeChar)
 		buffer.WriteString(field)
+		buffer.WriteString(builder.config.EscapeChar)
 		buffer.WriteString("=")
 		buffer.WriteString(builder.ph())
 		args = append(args, value)
@@ -215,7 +229,9 @@ func (builder *Builder) Delete(collection string, cond c.Condition) (string, []i
 	var args []interface{}
 
 	buffer.WriteString("DELETE FROM ")
+	buffer.WriteString(builder.config.EscapeChar)
 	buffer.WriteString(collection)
+	buffer.WriteString(builder.config.EscapeChar)
 
 	if s, arg := builder.where(cond); s != "" {
 		buffer.WriteString(" ")

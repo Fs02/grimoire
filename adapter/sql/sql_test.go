@@ -16,7 +16,7 @@ func open() (*Adapter, error) {
 	var err error
 	adapter := New(&Config{
 		Placeholder:         "?",
-		EscapeRune:          '`',
+		EscapeChar:          "`",
 		InsertDefaultValues: true,
 		ErrorFunc:           func(err error) error { return err },
 		IncrementFunc:       func(Adapter) int { return 1 },

@@ -14,7 +14,7 @@ type Config struct {
 	Placeholder         string
 	Ordinal             bool
 	InsertDefaultValues bool
-	EscapeRune          rune
+	EscapeChar          string
 	ErrorFunc           func(error) error
 	IncrementFunc       func(Adapter) int
 }

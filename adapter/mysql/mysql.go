@@ -38,7 +38,7 @@ func Open(dsn string) (*Adapter, error) {
 		Adapter: &sql.Adapter{
 			Config: &sql.Config{
 				Placeholder:   "?",
-				EscapeRune:    '`',
+				EscapeChar:    "`",
 				IncrementFunc: incrementFunc,
 				ErrorFunc:     errorFunc,
 			},

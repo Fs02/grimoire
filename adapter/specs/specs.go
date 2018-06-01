@@ -57,7 +57,7 @@ const (
 
 var builder = sql.NewBuilder(&sql.Config{
 	Placeholder: "?",
-	EscapeRune:  '`',
+	EscapeChar:  "`",
 })
 
 func assertConstraint(t *testing.T, err error, kind errors.Kind, field string) {
