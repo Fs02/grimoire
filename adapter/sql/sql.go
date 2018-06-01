@@ -33,23 +33,18 @@ func (adapter *Adapter) Close() error {
 	return adapter.DB.Close()
 }
 
-// Count retrieves count of record that match the query.
-func (adapter *Adapter) Count(query grimoire.Query, loggers ...grimoire.Logger) (int, error) {
-	var doc struct {
-		Count int
-	}
-
-	query.Fields = []string{"COUNT(*) AS count"}
-	statement, args := NewBuilder(adapter.Config).Find(query)
-	_, err := adapter.Query(&doc, statement, args, loggers...)
-	return doc.Count, err
-}
-
 // All retrieves all record that match the query.
 func (adapter *Adapter) All(query grimoire.Query, doc interface{}, loggers ...grimoire.Logger) (int, error) {
 	statement, args := NewBuilder(adapter.Config).Find(query)
 	count, err := adapter.Query(doc, statement, args, loggers...)
 	return int(count), err
+}
+
+// Aggregate record using given query.
+func (adapter *Adapter) Aggregate(query grimoire.Query, doc interface{}, loggers ...grimoire.Logger) error {
+	statement, args := NewBuilder(adapter.Config).Aggregate(query)
+	_, err := adapter.Query(doc, statement, args, loggers...)
+	return err
 }
 
 // Insert inserts a record to database and returns its id.

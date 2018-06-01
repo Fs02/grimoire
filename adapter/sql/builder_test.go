@@ -398,10 +398,10 @@ func TestBuilder_Select(t *testing.T) {
 		EscapeChar:  "`",
 	}).fields(true, "id", "name"))
 
-	assert.Equal(t, "SELECT COUNT(*) AS count", NewBuilder(&Config{
-		Placeholder: "?",
-		EscapeChar:  "`",
-	}).fields(false, "COUNT(*) AS count"))
+	// assert.Equal(t, "SELECT COUNT(*) AS count", NewBuilder(&Config{
+	// 	Placeholder: "?",
+	// 	EscapeChar:  "`",
+	// }).fields(false, "COUNT(*) AS count"))
 }
 
 func TestBuilder_From(t *testing.T) {

@@ -18,12 +18,19 @@ type Builder struct {
 
 // Find generates query for select.
 func (builder *Builder) Find(q grimoire.Query) (string, []interface{}) {
+	qs, args := builder.query(q)
+	return builder.fields(q.AsDistinct, q.Fields...) + qs, args
+}
+
+// Aggregate generates query for aggregation.
+func (builder *Builder) Aggregate(q grimoire.Query) (string, []interface{}) {
+	qs, args := builder.query(q)
+	return builder.aggregate(q.AggregateMode, q.AggregateField) + qs, args
+}
+
+func (builder *Builder) query(q grimoire.Query) (string, []interface{}) {
 	var buffer bytes.Buffer
 	var args []interface{}
-
-	if s := builder.fields(q.AsDistinct, q.Fields...); s != "" {
-		buffer.WriteString(s)
-	}
 
 	if s := builder.from(q.Collection); s != "" {
 		buffer.WriteString(" ")
@@ -244,11 +251,14 @@ func (builder *Builder) Delete(collection string, cond c.Condition) (string, []i
 	return buffer.String(), args
 }
 
+func (builder *Builder) aggregate(mode string, field string) string {
+	f := builder.escape(field)
+	return "SELECT " + f + "," + mode + "(" + f + ") AS" + mode
+}
+
 func (builder *Builder) fields(distinct bool, fields ...string) string {
 	if len(fields) == 0 {
 		return "SELECT *"
-	} else if fields[0] == "COUNT(*) AS count" {
-		return "SELECT COUNT(*) AS count"
 	}
 
 	var buffer bytes.Buffer

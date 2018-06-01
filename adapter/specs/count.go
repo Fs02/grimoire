@@ -36,6 +36,8 @@ func Count(t *testing.T, repo grimoire.Repo) {
 		repo.From(users).Where(c.NotLike(name, "noname%")),
 		repo.From(users).Where(c.Fragment("id > 0")),
 		repo.From(users).Where(c.Not(c.Eq(id, 1), c.Eq(name, "name1"), c.Eq(age, 10))),
+		repo.From(users).Group("gender"),
+		repo.From(users).Group("age").Having(c.Gt(age, 10)),
 	}
 
 	for _, query := range tests {
