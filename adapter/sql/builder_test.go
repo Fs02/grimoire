@@ -155,10 +155,37 @@ func TestBuilder_Find_ordinal(t *testing.T) {
 				Ordinal:             true,
 				InsertDefaultValues: true,
 			}).Find(tt.Query)
+
 			assert.Equal(t, tt.QueryString, qs)
 			assert.Equal(t, tt.Args, args)
 		})
 	}
+}
+
+func TestBuilder_Aggregate(t *testing.T) {
+	builder := NewBuilder(&Config{
+		Placeholder: "?",
+		EscapeChar:  "`",
+	})
+
+	users := grimoire.Query{
+		Collection: "users",
+		Fields:     []string{"*"},
+	}
+
+	users.AggregateMode = "count"
+	users.AggregateField = "*"
+
+	qs, args := builder.Aggregate(users)
+	assert.Nil(t, args)
+	assert.Equal(t, "SELECT count(*) AS count FROM `users`;", qs)
+
+	users.AggregateMode = "sum"
+	users.AggregateField = "transactions.total"
+
+	qs, args = builder.Aggregate(users)
+	assert.Nil(t, args)
+	assert.Equal(t, "SELECT `transactions`.`total`,sum(`transactions`.`total`) AS sum FROM `users`;", qs)
 }
 
 func TestBuilder_Insert(t *testing.T) {
