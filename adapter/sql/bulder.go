@@ -252,6 +252,10 @@ func (builder *Builder) Delete(collection string, cond c.Condition) (string, []i
 }
 
 func (builder *Builder) aggregate(mode string, field string) string {
+	if mode == "count" && field == "*" {
+		return "SELECT count(*) AS count"
+	}
+
 	f := builder.escape(field)
 	return "SELECT " + f + "," + mode + "(" + f + ") AS" + mode
 }
