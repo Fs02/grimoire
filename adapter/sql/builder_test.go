@@ -641,28 +641,26 @@ func TestBuilder_OrderBy(t *testing.T) {
 	}).orderBy(Asc("name"), Desc("created_at")))
 }
 
-func TestBuilder_Offset(t *testing.T) {
+func TestBuilder_LimitOffset(t *testing.T) {
 	assert.Equal(t, "", NewBuilder(&Config{
 		Placeholder: "?",
 		EscapeChar:  "`",
-	}).offset(0))
+	}).limitOffset(0, 0))
 
-	assert.Equal(t, "OFFSET 10", NewBuilder(&Config{
-		Placeholder: "?",
-		EscapeChar:  "`",
-	}).offset(10))
-}
-
-func TestBuilder_Limit(t *testing.T) {
 	assert.Equal(t, "", NewBuilder(&Config{
 		Placeholder: "?",
 		EscapeChar:  "`",
-	}).limit(0))
+	}).limitOffset(0, 10))
 
 	assert.Equal(t, "LIMIT 10", NewBuilder(&Config{
 		Placeholder: "?",
 		EscapeChar:  "`",
-	}).limit(10))
+	}).limitOffset(10, 0))
+
+	assert.Equal(t, "LIMIT 10 OFFSET 10", NewBuilder(&Config{
+		Placeholder: "?",
+		EscapeChar:  "`",
+	}).limitOffset(10, 10))
 }
 
 func TestBuilder_Condition(t *testing.T) {

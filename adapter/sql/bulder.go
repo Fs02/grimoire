@@ -74,12 +74,7 @@ func (builder *Builder) query(q grimoire.Query) (string, []interface{}) {
 		buffer.WriteString(s)
 	}
 
-	if s := builder.limit(q.LimitResult); s != "" {
-		buffer.WriteString(" ")
-		buffer.WriteString(s)
-	}
-
-	if s := builder.offset(q.OffsetResult); s != "" && q.LimitResult != 0 {
+	if s := builder.limitOffset(q.LimitResult, q.OffsetResult); s != "" {
 		buffer.WriteString(" ")
 		buffer.WriteString(s)
 	}
@@ -369,20 +364,18 @@ func (builder *Builder) orderBy(orders ...c.Order) string {
 	return qs
 }
 
-func (builder *Builder) offset(n int) string {
-	if n > 0 {
-		return "OFFSET " + strconv.Itoa(n)
+func (builder *Builder) limitOffset(limit int, offset int) string {
+	str := ""
+
+	if limit > 0 {
+		str = "LIMIT " + strconv.Itoa(limit)
+
+		if offset > 0 {
+			str += " OFFSET " + strconv.Itoa(offset)
+		}
 	}
 
-	return ""
-}
-
-func (builder *Builder) limit(n int) string {
-	if n > 0 {
-		return "LIMIT " + strconv.Itoa(n)
-	}
-
-	return ""
+	return str
 }
 
 func (builder *Builder) condition(cond c.Condition) (string, []interface{}) {
