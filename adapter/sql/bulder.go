@@ -4,10 +4,13 @@ import (
 	"bytes"
 	"strconv"
 	"strings"
+	"sync"
 
 	"github.com/Fs02/grimoire"
 	"github.com/Fs02/grimoire/c"
 )
+
+var fieldCache sync.Map
 
 // Builder defines information of query builder.
 type Builder struct {
@@ -25,7 +28,13 @@ func (builder *Builder) Find(q grimoire.Query) (string, []interface{}) {
 // Aggregate generates query for aggregation.
 func (builder *Builder) Aggregate(q grimoire.Query) (string, []interface{}) {
 	qs, args := builder.query(q)
-	return builder.aggregate(q.AggregateMode, q.AggregateField) + qs, args
+
+	if q.AggregateMode == "count" && q.AggregateField == "*" {
+		return builder.fields(false, "count(*) AS count") + qs, args
+	}
+
+	field := q.AggregateMode + "(" + q.AggregateField + ")" + " AS " + q.AggregateMode
+	return builder.fields(false, q.AggregateField, field) + qs, args
 }
 
 func (builder *Builder) query(q grimoire.Query) (string, []interface{}) {
@@ -249,15 +258,6 @@ func (builder *Builder) Delete(collection string, cond c.Condition) (string, []i
 	buffer.WriteString(";")
 
 	return buffer.String(), args
-}
-
-func (builder *Builder) aggregate(mode string, field string) string {
-	if mode == "count" && field == "*" {
-		return "SELECT count(*) AS count"
-	}
-
-	f := builder.escape(field)
-	return "SELECT " + f + "," + mode + "(" + f + ") AS" + mode
 }
 
 func (builder *Builder) fields(distinct bool, fields ...string) string {
@@ -509,17 +509,31 @@ func (builder *Builder) ph() string {
 }
 
 func (builder *Builder) escape(field string) string {
-	if strings.HasSuffix(field, "*") {
-		if len(field) == 1 {
-			return field
-		}
-
-		return builder.config.EscapeChar + strings.Replace(field, ".", builder.config.EscapeChar+".", 1)
+	if builder.config.EscapeChar == "" || field == "*" {
+		return field
 	}
 
-	return builder.config.EscapeChar +
-		strings.Replace(field, ".", builder.config.EscapeChar+"."+builder.config.EscapeChar, 1) +
-		builder.config.EscapeChar
+	key := field + builder.config.EscapeChar
+	escapedField, ok := fieldCache.Load(key)
+	if ok {
+		return escapedField.(string)
+	}
+
+	start := strings.IndexRune(field, '(')
+	end := strings.IndexRune(field, ')')
+
+	if start >= 0 && end >= 0 && end > start {
+		escapedField = field[:start+1] + builder.escape(field[start+1:end]) + field[end:]
+	} else if strings.HasSuffix(field, "*") {
+		escapedField = builder.config.EscapeChar + strings.Replace(field, ".", builder.config.EscapeChar+".", 1)
+	} else {
+		escapedField = builder.config.EscapeChar +
+			strings.Replace(field, ".", builder.config.EscapeChar+"."+builder.config.EscapeChar, 1) +
+			builder.config.EscapeChar
+	}
+
+	fieldCache.Store(key, escapedField)
+	return escapedField.(string)
 }
 
 // Returning append returning to insert query.

@@ -398,10 +398,20 @@ func TestBuilder_Select(t *testing.T) {
 		EscapeChar:  "`",
 	}).fields(true, "id", "name"))
 
-	// assert.Equal(t, "SELECT COUNT(*) AS count", NewBuilder(&Config{
-	// 	Placeholder: "?",
-	// 	EscapeChar:  "`",
-	// }).fields(false, "COUNT(*) AS count"))
+	assert.Equal(t, "SELECT COUNT(*) AS count", NewBuilder(&Config{
+		Placeholder: "?",
+		EscapeChar:  "`",
+	}).fields(false, "COUNT(*) AS count"))
+
+	assert.Equal(t, "SELECT COUNT(`transactions`.*) AS count", NewBuilder(&Config{
+		Placeholder: "?",
+		EscapeChar:  "`",
+	}).fields(false, "COUNT(transactions.*) AS count"))
+
+	assert.Equal(t, "SELECT SUM(`transactions`.`total`) AS total", NewBuilder(&Config{
+		Placeholder: "?",
+		EscapeChar:  "`",
+	}).fields(false, "SUM(transactions.total) AS total"))
 }
 
 func TestBuilder_From(t *testing.T) {
