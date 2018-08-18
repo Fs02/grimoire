@@ -33,19 +33,19 @@ func TestMap_Value(t *testing.T) {
 		{
 			name:  "not exist",
 			typ:   reflect.TypeOf(true),
-			value: (*bool)(nil),
+			value: nil,
 			valid: true,
 		},
 		{
 			name:  "nil",
 			typ:   reflect.TypeOf(true),
-			value: (*bool)(nil),
+			value: nil,
 			valid: true,
 		},
 		{
 			name:  "incorrect type",
 			typ:   reflect.TypeOf(true),
-			value: (*bool)(nil),
+			value: nil,
 			valid: false,
 		},
 		{
@@ -69,7 +69,7 @@ func TestMap_Value(t *testing.T) {
 		{
 			name:  "slice of interface mixed",
 			typ:   reflect.TypeOf([]bool{}),
-			value: []bool(nil),
+			value: nil,
 			valid: false,
 		},
 	}
