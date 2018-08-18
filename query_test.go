@@ -500,7 +500,7 @@ func TestQuery_Count(t *testing.T) {
 
 func createChangeset() (*changeset.Changeset, User) {
 	user := User{}
-	ch := changeset.Cast(user, map[string]interface{}{
+	ch := changeset.Cast(user, changeset.Map{
 		"name": "name",
 	}, []string{"name"})
 
@@ -676,14 +676,14 @@ func TestQuery_Insert_assocOne(t *testing.T) {
 		User User
 	}
 
-	params := map[string]interface{}{
+	params := changeset.Map{
 		"id": 1,
-		"user": map[string]interface{}{
+		"user": changeset.Map{
 			"name": "name",
 		},
 	}
 
-	userChangeset := func(entity interface{}, params map[string]interface{}) *changeset.Changeset {
+	userChangeset := func(entity interface{}, params changeset.Params) *changeset.Changeset {
 		ch := changeset.Cast(entity, params, []string{"name"})
 		return ch
 	}
@@ -712,9 +712,9 @@ func TestQuery_Insert_assocMany(t *testing.T) {
 		Users []User
 	}
 
-	params := map[string]interface{}{
+	params := changeset.Map{
 		"name": "name",
-		"users": []map[string]interface{}{
+		"users": []changeset.Map{
 			{
 				"name": "name1",
 			},
@@ -724,7 +724,7 @@ func TestQuery_Insert_assocMany(t *testing.T) {
 		},
 	}
 
-	userChangeset := func(entity interface{}, params map[string]interface{}) *changeset.Changeset {
+	userChangeset := func(entity interface{}, params changeset.Params) *changeset.Changeset {
 		ch := changeset.Cast(entity, params, []string{"name"})
 		return ch
 	}
@@ -859,14 +859,14 @@ func TestQuery_Update_assocOne(t *testing.T) {
 		User User
 	}
 
-	params := map[string]interface{}{
+	params := changeset.Map{
 		"id": 1,
-		"user": map[string]interface{}{
+		"user": changeset.Map{
 			"name": "name",
 		},
 	}
 
-	userChangeset := func(entity interface{}, params map[string]interface{}) *changeset.Changeset {
+	userChangeset := func(entity interface{}, params changeset.Params) *changeset.Changeset {
 		ch := changeset.Cast(entity, params, []string{"name"})
 		return ch
 	}
@@ -895,16 +895,16 @@ func TestQuery_Update_assocMany(t *testing.T) {
 		Users []User
 	}
 
-	params := map[string]interface{}{
+	params := changeset.Map{
 		"name": "name",
-		"user": []map[string]interface{}{
+		"user": []changeset.Map{
 			{
 				"name": "name",
 			},
 		},
 	}
 
-	userChangeset := func(entity interface{}, params map[string]interface{}) *changeset.Changeset {
+	userChangeset := func(entity interface{}, params changeset.Params) *changeset.Changeset {
 		ch := changeset.Cast(entity, params, []string{"name"})
 		return ch
 	}
@@ -1049,16 +1049,16 @@ func TestGetFields(t *testing.T) {
 	}
 
 	query := Repo{}.From("users")
-	params := map[string]interface{}{
+	params := changeset.Map{
 		"name": "name",
-		"users": []map[string]interface{}{
+		"users": []changeset.Map{
 			{
 				"name": "name1",
 			},
 		},
 	}
 
-	userChangeset := func(entity interface{}, params map[string]interface{}) *changeset.Changeset {
+	userChangeset := func(entity interface{}, params changeset.Params) *changeset.Changeset {
 		ch := changeset.Cast(entity, params, []string{"name"})
 		return ch
 	}

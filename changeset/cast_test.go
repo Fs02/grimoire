@@ -15,7 +15,7 @@ func ExampleCast() {
 	}
 
 	user := User{}
-	params := map[string]interface{}{
+	params := Map{
 		"id":   1,
 		"name": "name",
 	}
@@ -32,7 +32,7 @@ func ExampleCast_invalidType() {
 	}
 
 	user := User{}
-	params := map[string]interface{}{
+	params := Map{
 		"id":   1,
 		"name": true,
 	}
@@ -41,6 +41,7 @@ func ExampleCast_invalidType() {
 	fmt.Println(ch.Error())
 	// Output: name is invalid
 }
+
 func ExampleCast_invalidTypeWithCustomError() {
 	type User struct {
 		ID   int
@@ -48,7 +49,7 @@ func ExampleCast_invalidTypeWithCustomError() {
 	}
 
 	user := User{}
-	params := map[string]interface{}{
+	params := Map{
 		"id":   1,
 		"name": true,
 	}
@@ -66,7 +67,7 @@ func TestCast(t *testing.T) {
 		Field4 bool `db:"-"`
 	}
 
-	params := map[string]interface{}{
+	params := Map{
 		"field1": 1,
 		"field2": "2",
 		"field3": true,
@@ -115,7 +116,7 @@ func TestCast_existingChangeset(t *testing.T) {
 		Field3 bool
 	}
 
-	params := map[string]interface{}{
+	params := Map{
 		"field1": 1,
 		"field2": "2",
 		"field3": true,
@@ -164,7 +165,7 @@ func TestCast_unchanged(t *testing.T) {
 		Field4 *bool
 	}
 
-	params := map[string]interface{}{
+	params := Map{
 		"field1": 0,
 		"field2": "",
 		"field3": false,
@@ -198,7 +199,7 @@ func TestCast_error(t *testing.T) {
 		Field1 int
 	}
 
-	params := map[string]interface{}{
+	params := Map{
 		"field1": "1",
 	}
 
@@ -208,7 +209,7 @@ func TestCast_error(t *testing.T) {
 }
 
 func TestCast_panic(t *testing.T) {
-	params := map[string]interface{}{
+	params := Map{
 		"field1": "1",
 	}
 
@@ -217,7 +218,7 @@ func TestCast_panic(t *testing.T) {
 	})
 }
 
-var params = map[string]interface{}{
+var params = Map{
 	"field1":  true,
 	"field2":  2,
 	"field3":  3,
@@ -598,7 +599,7 @@ func TestCast_ptrWithNilValue(t *testing.T) {
 		&vstring,
 	}
 
-	params := map[string]interface{}{
+	params := Map{
 		"field1":  nil,
 		"field2":  nil,
 		"field3":  nil,
@@ -728,7 +729,7 @@ func TestCast_ptrWithTypedNilValue(t *testing.T) {
 		&vstring,
 	}
 
-	params := map[string]interface{}{
+	params := Map{
 		"field1":  (*bool)(nil),
 		"field2":  (*int)(nil),
 		"field3":  (*int8)(nil),
@@ -806,7 +807,7 @@ func TestCast_ptrWithTypedNilValue(t *testing.T) {
 	assert.Equal(t, expectedTypes, ch.types)
 }
 
-var sliceParams = map[string]interface{}{
+var sliceParams = Map{
 	"field1":  []bool{true},
 	"field2":  []int{2},
 	"field3":  []int8{3},

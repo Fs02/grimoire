@@ -12,7 +12,7 @@ func TestUnescapeString(t *testing.T) {
 	}
 
 	user := User{}
-	params := map[string]interface{}{
+	params := Map{
 		"name": `&quot;Fran &amp; Freddie&#39;s Diner&quot; &lt;tasty@example.com&gt;`,
 	}
 

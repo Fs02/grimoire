@@ -12,7 +12,7 @@ func TestEscapeString(t *testing.T) {
 	}
 
 	user := User{}
-	params := map[string]interface{}{
+	params := Map{
 		"name": `"Fran & Freddie's Diner" <tasty@example.com>`,
 	}
 

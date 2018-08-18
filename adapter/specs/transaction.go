@@ -10,12 +10,12 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-var params = map[string]interface{}{
+var params = changeset.Map{
 	"name":   "whiteviolet",
 	"gender": "male",
 	"age":    18,
 	"note":   "some note here",
-	"addresses": []map[string]interface{}{
+	"addresses": []changeset.Map{
 		{
 			"address": "Aceh, Indonesia",
 		},
@@ -125,7 +125,7 @@ func replaceAssoc(t *testing.T) func(repo grimoire.Repo) error {
 	}
 }
 
-func changeUser(user interface{}, params map[string]interface{}) *changeset.Changeset {
+func changeUser(user interface{}, params changeset.Params) *changeset.Changeset {
 	ch := changeset.Cast(user, params, []string{
 		"name",
 		"gender",
@@ -136,7 +136,7 @@ func changeUser(user interface{}, params map[string]interface{}) *changeset.Chan
 	return ch
 }
 
-func changeAddress(address interface{}, params map[string]interface{}) *changeset.Changeset {
+func changeAddress(address interface{}, params changeset.Params) *changeset.Changeset {
 	ch := changeset.Cast(address, params, []string{"address"})
 	return ch
 }

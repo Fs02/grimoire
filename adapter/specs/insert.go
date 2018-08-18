@@ -18,16 +18,16 @@ func Insert(t *testing.T, repo grimoire.Repo) {
 	tests := []struct {
 		query  grimoire.Query
 		record interface{}
-		params map[string]interface{}
+		params changeset.Params
 	}{
-		{repo.From(users), &User{}, map[string]interface{}{}},
-		{repo.From(users), &User{}, map[string]interface{}{"name": "insert", "age": 100}},
-		{repo.From(users), &User{}, map[string]interface{}{"name": "insert", "age": 100, "note": "note"}},
-		{repo.From(users), &User{}, map[string]interface{}{"note": "note"}},
-		{repo.From(addresses), &Address{}, map[string]interface{}{}},
-		{repo.From(addresses), &Address{}, map[string]interface{}{"address": "address"}},
-		{repo.From(addresses), &Address{}, map[string]interface{}{"user_id": user.ID}},
-		{repo.From(addresses), &Address{}, map[string]interface{}{"address": "address", "user_id": user.ID}},
+		{repo.From(users), &User{}, changeset.Map{}},
+		{repo.From(users), &User{}, changeset.Map{"name": "insert", "age": 100}},
+		{repo.From(users), &User{}, changeset.Map{"name": "insert", "age": 100, "note": "note"}},
+		{repo.From(users), &User{}, changeset.Map{"note": "note"}},
+		{repo.From(addresses), &Address{}, changeset.Map{}},
+		{repo.From(addresses), &Address{}, changeset.Map{"address": "address"}},
+		{repo.From(addresses), &Address{}, changeset.Map{"user_id": user.ID}},
+		{repo.From(addresses), &Address{}, changeset.Map{"address": "address", "user_id": user.ID}},
 	}
 
 	for _, test := range tests {
@@ -55,16 +55,16 @@ func InsertAll(t *testing.T, repo grimoire.Repo) {
 		query  grimoire.Query
 		schema interface{}
 		record interface{}
-		params map[string]interface{}
+		params changeset.Params
 	}{
-		{repo.From(users), User{}, &[]User{}, map[string]interface{}{}},
-		{repo.From(users), User{}, &[]User{}, map[string]interface{}{"name": "insert", "age": 100}},
-		{repo.From(users), User{}, &[]User{}, map[string]interface{}{"name": "insert", "age": 100, "note": "note"}},
-		{repo.From(users), User{}, &[]User{}, map[string]interface{}{"note": "note"}},
-		{repo.From(addresses), &Address{}, &[]Address{}, map[string]interface{}{}},
-		{repo.From(addresses), &Address{}, &[]Address{}, map[string]interface{}{"address": "address"}},
-		{repo.From(addresses), &Address{}, &[]Address{}, map[string]interface{}{"user_id": user.ID}},
-		{repo.From(addresses), &Address{}, &[]Address{}, map[string]interface{}{"address": "address", "user_id": user.ID}},
+		{repo.From(users), User{}, &[]User{}, changeset.Map{}},
+		{repo.From(users), User{}, &[]User{}, changeset.Map{"name": "insert", "age": 100}},
+		{repo.From(users), User{}, &[]User{}, changeset.Map{"name": "insert", "age": 100, "note": "note"}},
+		{repo.From(users), User{}, &[]User{}, changeset.Map{"note": "note"}},
+		{repo.From(addresses), &Address{}, &[]Address{}, changeset.Map{}},
+		{repo.From(addresses), &Address{}, &[]Address{}, changeset.Map{"address": "address"}},
+		{repo.From(addresses), &Address{}, &[]Address{}, changeset.Map{"user_id": user.ID}},
+		{repo.From(addresses), &Address{}, &[]Address{}, changeset.Map{"address": "address", "user_id": user.ID}},
 	}
 
 	for _, test := range tests {

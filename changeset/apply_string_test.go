@@ -13,7 +13,7 @@ func TestApplyString(t *testing.T) {
 	}
 
 	user := User{}
-	params := map[string]interface{}{
+	params := Map{
 		"name": "¡¡¡Hello, Gophers!!!",
 	}
 
@@ -31,7 +31,7 @@ func TestApplyString_ignored(t *testing.T) {
 	}
 
 	user := User{}
-	params := map[string]interface{}{
+	params := Map{
 		"name": 1,
 	}
 
