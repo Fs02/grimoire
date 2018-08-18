@@ -6,6 +6,7 @@ import (
 	"github.com/Fs02/grimoire"
 	"github.com/Fs02/grimoire/c"
 	"github.com/Fs02/grimoire/changeset"
+	"github.com/Fs02/grimoire/params"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -20,14 +21,14 @@ func Update(t *testing.T, repo grimoire.Repo) {
 	tests := []struct {
 		query  grimoire.Query
 		record interface{}
-		params changeset.Params
+		params params.Params
 	}{
-		{repo.From(users).Find(user.ID), &User{}, changeset.Map{"name": "insert", "age": 100}},
-		{repo.From(users).Find(user.ID), &User{}, changeset.Map{"name": "insert", "age": 100, "note": "note"}},
-		{repo.From(users).Find(user.ID), &User{}, changeset.Map{"note": "note"}},
-		{repo.From(addresses).Find(address.ID), &Address{}, changeset.Map{"address": "address"}},
-		{repo.From(addresses).Find(address.ID), &Address{}, changeset.Map{"user_id": user.ID}},
-		{repo.From(addresses).Find(address.ID), &Address{}, changeset.Map{"address": "address", "user_id": user.ID}},
+		{repo.From(users).Find(user.ID), &User{}, params.Map{"name": "insert", "age": 100}},
+		{repo.From(users).Find(user.ID), &User{}, params.Map{"name": "insert", "age": 100, "note": "note"}},
+		{repo.From(users).Find(user.ID), &User{}, params.Map{"note": "note"}},
+		{repo.From(addresses).Find(address.ID), &Address{}, params.Map{"address": "address"}},
+		{repo.From(addresses).Find(address.ID), &Address{}, params.Map{"user_id": user.ID}},
+		{repo.From(addresses).Find(address.ID), &Address{}, params.Map{"address": "address", "user_id": user.ID}},
 	}
 
 	for _, test := range tests {
@@ -55,10 +56,10 @@ func UpdateWhere(t *testing.T, repo grimoire.Repo) {
 		query  grimoire.Query
 		schema interface{}
 		record interface{}
-		params changeset.Params
+		params params.Params
 	}{
-		{repo.From(users).Where(c.Eq(name, "update all")), User{}, &[]User{}, changeset.Map{"name": "insert", "age": 100}},
-		{repo.From(addresses).Where(c.Eq(c.I("address"), "update_all")), Address{}, &[]Address{}, changeset.Map{"address": "address", "user_id": user.ID}},
+		{repo.From(users).Where(c.Eq(name, "update all")), User{}, &[]User{}, params.Map{"name": "insert", "age": 100}},
+		{repo.From(addresses).Where(c.Eq(c.I("address"), "update_all")), Address{}, &[]Address{}, params.Map{"address": "address", "user_id": user.ID}},
 	}
 
 	for _, test := range tests {

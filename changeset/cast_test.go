@@ -5,6 +5,7 @@ import (
 	"reflect"
 	"testing"
 
+	"github.com/Fs02/grimoire/params"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -15,12 +16,12 @@ func ExampleCast() {
 	}
 
 	user := User{}
-	params := Map{
+	input := params.Map{
 		"id":   1,
 		"name": "name",
 	}
 
-	ch := Cast(user, params, []string{"name"})
+	ch := Cast(user, input, []string{"name"})
 	fmt.Println(ch.Changes())
 	// Output: map[name:name]
 }
@@ -32,12 +33,12 @@ func ExampleCast_invalidType() {
 	}
 
 	user := User{}
-	params := Map{
+	input := params.Map{
 		"id":   1,
 		"name": true,
 	}
 
-	ch := Cast(user, params, []string{"name"})
+	ch := Cast(user, input, []string{"name"})
 	fmt.Println(ch.Error())
 	// Output: name is invalid
 }
@@ -49,12 +50,12 @@ func ExampleCast_invalidTypeWithCustomError() {
 	}
 
 	user := User{}
-	params := Map{
+	input := params.Map{
 		"id":   1,
 		"name": true,
 	}
 
-	ch := Cast(user, params, []string{"name"}, Message("{field} tidak valid"))
+	ch := Cast(user, input, []string{"name"}, Message("{field} tidak valid"))
 	fmt.Println(ch.Error())
 	// Output: name tidak valid
 }
@@ -67,7 +68,7 @@ func TestCast(t *testing.T) {
 		Field4 bool `db:"-"`
 	}
 
-	params := Map{
+	input := params.Map{
 		"field1": 1,
 		"field2": "2",
 		"field3": true,
@@ -93,13 +94,13 @@ func TestCast(t *testing.T) {
 		"field3": false,
 	}
 
-	ch := Cast(data, params, []string{"field1", "field2", "field3", "field4"})
+	ch := Cast(data, input, []string{"field1", "field2", "field3", "field4"})
 	assert.Nil(t, ch.Errors())
 	assert.Equal(t, expectedChanges, ch.Changes())
 	assert.Equal(t, expectedTypes, ch.types)
 	assert.Equal(t, expectedValues, ch.values)
 
-	ch = Cast(&data, params, []string{"field1", "field2", "field3", "field4"})
+	ch = Cast(&data, input, []string{"field1", "field2", "field3", "field4"})
 	assert.Nil(t, ch.Errors())
 	assert.Equal(t, expectedChanges, ch.Changes())
 	assert.Equal(t, expectedTypes, ch.types)
@@ -116,7 +117,7 @@ func TestCast_existingChangeset(t *testing.T) {
 		Field3 bool
 	}
 
-	params := Map{
+	input := params.Map{
 		"field1": 1,
 		"field2": "2",
 		"field3": true,
@@ -141,15 +142,15 @@ func TestCast_existingChangeset(t *testing.T) {
 		"field3": false,
 	}
 
-	ch := Cast(data, params, []string{})
+	ch := Cast(data, input, []string{})
 	assert.Nil(t, ch.Errors())
 	assert.Equal(t, 0, len(ch.Changes()))
 
-	ch = Cast(ch, params, []string{"field1", "field2"})
+	ch = Cast(ch, input, []string{"field1", "field2"})
 	assert.Nil(t, ch.Errors())
 	assert.Equal(t, 2, len(ch.Changes()))
 
-	ch = Cast(*ch, params, []string{"field1", "field3"})
+	ch = Cast(*ch, input, []string{"field1", "field3"})
 	assert.Nil(t, ch.Errors())
 	assert.Equal(t, 3, len(ch.Changes()))
 	assert.Equal(t, expectedChanges, ch.Changes())
@@ -165,7 +166,7 @@ func TestCast_unchanged(t *testing.T) {
 		Field4 *bool
 	}
 
-	params := Map{
+	input := params.Map{
 		"field1": 0,
 		"field2": "",
 		"field3": false,
@@ -187,7 +188,7 @@ func TestCast_unchanged(t *testing.T) {
 		"field3": false,
 	}
 
-	ch := Cast(data, params, []string{"field1", "field2", "field3", "field4"})
+	ch := Cast(data, input, []string{"field1", "field2", "field3", "field4"})
 	assert.Nil(t, ch.Errors())
 	assert.Equal(t, expectedChanges, ch.Changes())
 	assert.Equal(t, expectedTypes, ch.types)
@@ -199,26 +200,26 @@ func TestCast_error(t *testing.T) {
 		Field1 int
 	}
 
-	params := Map{
+	input := params.Map{
 		"field1": "1",
 	}
 
-	ch := Cast(data, params, []string{"field1"})
+	ch := Cast(data, input, []string{"field1"})
 	assert.NotNil(t, ch.Errors())
 	assert.Equal(t, "field1 is invalid", ch.Error().Error())
 }
 
 func TestCast_panic(t *testing.T) {
-	params := Map{
+	input := params.Map{
 		"field1": "1",
 	}
 
 	assert.Panics(t, func() {
-		Cast("data", params, []string{"field1"})
+		Cast("data", input, []string{"field1"})
 	})
 }
 
-var params = Map{
+var input = params.Map{
 	"field1":  true,
 	"field2":  2,
 	"field3":  3,
@@ -309,7 +310,7 @@ func TestCast_basic(t *testing.T) {
 		Field15 string
 	}
 
-	ch := Cast(data, params, []string{
+	ch := Cast(data, input, []string{
 		"field1",
 		"field2",
 		"field3",
@@ -386,7 +387,7 @@ func TestCast_basicWithValue(t *testing.T) {
 		"field15": "1",
 	}
 
-	ch := Cast(data, params, []string{
+	ch := Cast(data, input, []string{
 		"field1",
 		"field2",
 		"field3",
@@ -429,7 +430,7 @@ func TestCast_ptr(t *testing.T) {
 		Field15 *string
 	}
 
-	ch := Cast(data, params, []string{
+	ch := Cast(data, input, []string{
 		"field1",
 		"field2",
 		"field3",
@@ -523,7 +524,7 @@ func TestCast_ptrWithValue(t *testing.T) {
 		"field15": "1",
 	}
 
-	ch := Cast(data, params, []string{
+	ch := Cast(data, input, []string{
 		"field1",
 		"field2",
 		"field3",
@@ -599,7 +600,7 @@ func TestCast_ptrWithNilValue(t *testing.T) {
 		&vstring,
 	}
 
-	params := Map{
+	input := params.Map{
 		"field1":  nil,
 		"field2":  nil,
 		"field3":  nil,
@@ -653,7 +654,7 @@ func TestCast_ptrWithNilValue(t *testing.T) {
 		"field15": "1",
 	}
 
-	ch := Cast(data, params, []string{
+	ch := Cast(data, input, []string{
 		"field1",
 		"field2",
 		"field3",
@@ -729,7 +730,7 @@ func TestCast_ptrWithTypedNilValue(t *testing.T) {
 		&vstring,
 	}
 
-	params := Map{
+	input := params.Map{
 		"field1":  (*bool)(nil),
 		"field2":  (*int)(nil),
 		"field3":  (*int8)(nil),
@@ -783,7 +784,7 @@ func TestCast_ptrWithTypedNilValue(t *testing.T) {
 		"field15": "1",
 	}
 
-	ch := Cast(data, params, []string{
+	ch := Cast(data, input, []string{
 		"field1",
 		"field2",
 		"field3",
@@ -807,7 +808,7 @@ func TestCast_ptrWithTypedNilValue(t *testing.T) {
 	assert.Equal(t, expectedTypes, ch.types)
 }
 
-var sliceParams = Map{
+var sliceParams = params.Map{
 	"field1":  []bool{true},
 	"field2":  []int{2},
 	"field3":  []int8{3},

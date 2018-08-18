@@ -4,6 +4,7 @@ import (
 	"reflect"
 	"strings"
 
+	"github.com/Fs02/grimoire/params"
 	"github.com/azer/snakecase"
 )
 
@@ -12,7 +13,7 @@ var CastErrorMessage = "{field} is invalid"
 
 // Cast params as changes for the given data according to the permitted fields. Returns a new changeset.
 // params will only be added as changes if it does not have the same value as the field in the data.
-func Cast(data interface{}, params Params, fields []string, opts ...Option) *Changeset {
+func Cast(data interface{}, params params.Params, fields []string, opts ...Option) *Changeset {
 	options := Options{
 		message: CastErrorMessage,
 	}

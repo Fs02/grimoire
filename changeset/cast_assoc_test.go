@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/Fs02/grimoire/errors"
+	"github.com/Fs02/grimoire/params"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -21,15 +22,15 @@ func TestCastAssoc_one(t *testing.T) {
 		Field3 Inner
 	}
 
-	changeInner := func(data interface{}, params Params) *Changeset {
-		ch := Cast(data, params, []string{"field4", "field5"})
+	changeInner := func(data interface{}, input params.Params) *Changeset {
+		ch := Cast(data, input, []string{"field4", "field5"})
 		return ch
 	}
 
-	params := Map{
+	input := params.Map{
 		"field1": 1,
 		"field2": "2",
-		"field3": Map{
+		"field3": params.Map{
 			"field4": 4,
 			"field5": "5",
 		},
@@ -38,7 +39,7 @@ func TestCastAssoc_one(t *testing.T) {
 	expectedChanges := map[string]interface{}{
 		"field1": 1,
 		"field2": "2",
-		"field3": changeInner(inner, params["field3"].(Map)),
+		"field3": changeInner(inner, input["field3"].(params.Map)),
 	}
 
 	expectedTypes := map[string]reflect.Type{
@@ -53,7 +54,7 @@ func TestCastAssoc_one(t *testing.T) {
 		"field3": inner,
 	}
 
-	ch := Cast(data, params, []string{"field1", "field2"})
+	ch := Cast(data, input, []string{"field1", "field2"})
 	CastAssoc(ch, "field3", changeInner)
 
 	assert.Nil(t, ch.Errors())
@@ -70,15 +71,15 @@ func TestCastAssoc_onePointer(t *testing.T) {
 		Field3 *Inner
 	}
 
-	changeInner := func(data interface{}, params Params) *Changeset {
-		ch := Cast(data, params, []string{"field4", "field5"})
+	changeInner := func(data interface{}, input params.Params) *Changeset {
+		ch := Cast(data, input, []string{"field4", "field5"})
 		return ch
 	}
 
-	params := Map{
+	input := params.Map{
 		"field1": 1,
 		"field2": "2",
-		"field3": Map{
+		"field3": params.Map{
 			"field4": 4,
 			"field5": "5",
 		},
@@ -87,7 +88,7 @@ func TestCastAssoc_onePointer(t *testing.T) {
 	expectedChanges := map[string]interface{}{
 		"field1": 1,
 		"field2": "2",
-		"field3": changeInner(inner, params["field3"].(Map)),
+		"field3": changeInner(inner, input["field3"].(params.Map)),
 	}
 
 	expectedTypes := map[string]reflect.Type{
@@ -101,7 +102,7 @@ func TestCastAssoc_onePointer(t *testing.T) {
 		"field2": "",
 	}
 
-	ch := Cast(data, params, []string{"field1", "field2"})
+	ch := Cast(data, input, []string{"field1", "field2"})
 	CastAssoc(ch, "field3", changeInner)
 
 	assert.Nil(t, ch.Errors())
@@ -117,18 +118,18 @@ func TestCastAssoc_oneErrorParamsNotAMap(t *testing.T) {
 		Field3 Inner
 	}
 
-	changeInner := func(data interface{}, params Params) *Changeset {
-		ch := Cast(data, params, []string{"field4", "field5"})
+	changeInner := func(data interface{}, input params.Params) *Changeset {
+		ch := Cast(data, input, []string{"field4", "field5"})
 		return ch
 	}
 
-	params := Map{
+	input := params.Map{
 		"field1": 1,
 		"field2": "2",
 		"field3": "3",
 	}
 
-	ch := Cast(data, params, []string{"field1", "field2"})
+	ch := Cast(data, input, []string{"field1", "field2"})
 	CastAssoc(ch, "field3", changeInner)
 
 	assert.NotNil(t, ch.Errors())
@@ -142,20 +143,20 @@ func TestCastAssoc_oneInnerChangesetError(t *testing.T) {
 		Field3 Inner
 	}
 
-	changeInner := func(data interface{}, params Params) *Changeset {
-		ch := Cast(data, params, []string{"field4", "field5"})
+	changeInner := func(data interface{}, input params.Params) *Changeset {
+		ch := Cast(data, input, []string{"field4", "field5"})
 		return ch
 	}
 
-	params := Map{
+	input := params.Map{
 		"field1": 1,
 		"field2": "2",
-		"field3": Map{
+		"field3": params.Map{
 			"field4": "4",
 		},
 	}
 
-	ch := Cast(data, params, []string{"field1", "field2"})
+	ch := Cast(data, input, []string{"field1", "field2"})
 	CastAssoc(ch, "field3", changeInner)
 
 	assert.NotNil(t, ch.Errors())
@@ -171,15 +172,15 @@ func TestCastAssoc_many(t *testing.T) {
 		Field3 []Inner
 	}
 
-	changeInner := func(data interface{}, params Params) *Changeset {
-		ch := Cast(data, params, []string{"field4", "field5"})
+	changeInner := func(data interface{}, input params.Params) *Changeset {
+		ch := Cast(data, input, []string{"field4", "field5"})
 		return ch
 	}
 
-	params := Map{
+	input := params.Map{
 		"field1": 1,
 		"field2": "2",
-		"field3": []Map{
+		"field3": []params.Map{
 			{
 				"field4": 14,
 				"field5": "15",
@@ -191,7 +192,7 @@ func TestCastAssoc_many(t *testing.T) {
 		},
 	}
 
-	field3 := params["field3"].([]Map)
+	field3 := input["field3"].([]params.Map)
 	expectedChanges := map[string]interface{}{
 		"field1": 1,
 		"field2": "2",
@@ -214,7 +215,7 @@ func TestCastAssoc_many(t *testing.T) {
 	}
 
 	// with map assoc
-	ch := Cast(data, params, []string{"field1", "field2"})
+	ch := Cast(data, input, []string{"field1", "field2"})
 	CastAssoc(ch, "field3", changeInner)
 
 	assert.Nil(t, ch.Errors())
@@ -231,15 +232,15 @@ func TestCastAssoc_manyPointer(t *testing.T) {
 		Field3 []*Inner
 	}
 
-	changeInner := func(data interface{}, params Params) *Changeset {
-		ch := Cast(data, params, []string{"field4", "field5"})
+	changeInner := func(data interface{}, input params.Params) *Changeset {
+		ch := Cast(data, input, []string{"field4", "field5"})
 		return ch
 	}
 
-	params := Map{
+	input := params.Map{
 		"field1": 1,
 		"field2": "2",
-		"field3": []Map{
+		"field3": []params.Map{
 			{
 				"field4": 14,
 				"field5": "15",
@@ -251,7 +252,7 @@ func TestCastAssoc_manyPointer(t *testing.T) {
 		},
 	}
 
-	field3 := params["field3"].([]Map)
+	field3 := input["field3"].([]params.Map)
 	expectedChanges := map[string]interface{}{
 		"field1": 1,
 		"field2": "2",
@@ -273,7 +274,7 @@ func TestCastAssoc_manyPointer(t *testing.T) {
 		"field3": []*Inner(nil),
 	}
 
-	ch := Cast(data, params, []string{"field1", "field2"})
+	ch := Cast(data, input, []string{"field1", "field2"})
 	CastAssoc(ch, "field3", changeInner)
 
 	assert.Nil(t, ch.Errors())
@@ -289,18 +290,18 @@ func TestCastAssoc_manyErrorParamsNotASliceOfAMap(t *testing.T) {
 		Field3 []Inner
 	}
 
-	changeInner := func(data interface{}, params Params) *Changeset {
-		ch := Cast(data, params, []string{"field4", "field5"})
+	changeInner := func(data interface{}, input params.Params) *Changeset {
+		ch := Cast(data, input, []string{"field4", "field5"})
 		return ch
 	}
 
-	params := Map{
+	input := params.Map{
 		"field1": 1,
 		"field2": "2",
 		"field3": "3",
 	}
 
-	ch := Cast(data, params, []string{"field1", "field2"})
+	ch := Cast(data, input, []string{"field1", "field2"})
 	CastAssoc(ch, "field3", changeInner)
 
 	assert.NotNil(t, ch.Errors())
@@ -314,16 +315,16 @@ func TestCastAssoc_manyErrorMixed(t *testing.T) {
 		Field3 []Inner
 	}
 
-	changeInner := func(data interface{}, params Params) *Changeset {
-		ch := Cast(data, params, []string{"field4", "field5"})
+	changeInner := func(data interface{}, input params.Params) *Changeset {
+		ch := Cast(data, input, []string{"field4", "field5"})
 		return ch
 	}
 
-	params := Map{
+	input := params.Map{
 		"field1": 1,
 		"field2": "2",
 		"field3": []interface{}{
-			Map{
+			params.Map{
 				"field4": 14,
 				"field5": "15",
 			},
@@ -331,7 +332,7 @@ func TestCastAssoc_manyErrorMixed(t *testing.T) {
 		},
 	}
 
-	ch := Cast(data, params, []string{"field1", "field2"})
+	ch := Cast(data, input, []string{"field1", "field2"})
 	CastAssoc(ch, "field3", changeInner)
 
 	assert.NotNil(t, ch.Errors())
@@ -345,22 +346,22 @@ func TestCastAssoc_manyInnerChangesetError(t *testing.T) {
 		Field3 []Inner
 	}
 
-	changeInner := func(data interface{}, params Params) *Changeset {
-		ch := Cast(data, params, []string{"field4", "field5"})
+	changeInner := func(data interface{}, input params.Params) *Changeset {
+		ch := Cast(data, input, []string{"field4", "field5"})
 		return ch
 	}
 
-	params := Map{
+	input := params.Map{
 		"field1": 1,
 		"field2": "2",
-		"field3": []Map{
+		"field3": []params.Map{
 			{
 				"field4": "14",
 			},
 		},
 	}
 
-	ch := Cast(data, params, []string{"field1", "field2"})
+	ch := Cast(data, input, []string{"field1", "field2"})
 	CastAssoc(ch, "field3", changeInner)
 
 	assert.NotNil(t, ch.Errors())

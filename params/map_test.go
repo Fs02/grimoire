@@ -1,21 +1,21 @@
-package changeset_test
+package params_test
 
 import (
 	"reflect"
 	"testing"
 
-	"github.com/Fs02/grimoire/changeset"
+	"github.com/Fs02/grimoire/params"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestMap_Exists(t *testing.T) {
-	p := changeset.Map{"exists": true}
+	p := params.Map{"exists": true}
 	assert.True(t, p.Exists("exists"))
 	assert.False(t, p.Exists("not-exists"))
 }
 
 func TestMap_Value(t *testing.T) {
-	p := changeset.Map{
+	p := params.Map{
 		"nil":                      (*bool)(nil),
 		"incorrect type":           "some string",
 		"correct type":             true,
@@ -84,32 +84,32 @@ func TestMap_Value(t *testing.T) {
 }
 
 func TestMap_Param(t *testing.T) {
-	p := changeset.Map{
-		"changeset.Map":       changeset.Map{},
-		"changeset.Map slice": []changeset.Map{},
-		"map":       map[string]interface{}{},
-		"map slice": []map[string]interface{}{},
-		"invalid":   true,
+	p := params.Map{
+		"params.Map":       params.Map{},
+		"params.Map slice": []params.Map{},
+		"map":              map[string]interface{}{},
+		"map slice":        []map[string]interface{}{},
+		"invalid":          true,
 	}
 
 	tests := []struct {
 		name  string
-		param changeset.Params
+		param params.Params
 		valid bool
 	}{
 		{
-			name:  "changeset.Map",
-			param: changeset.Map{},
+			name:  "params.Map",
+			param: params.Map{},
 			valid: true,
 		},
 		{
-			name:  "changeset.Map slice",
+			name:  "params.Map slice",
 			param: nil,
 			valid: false,
 		},
 		{
 			name:  "map",
-			param: changeset.Map{},
+			param: params.Map{},
 			valid: true,
 		},
 		{
@@ -134,33 +134,33 @@ func TestMap_Param(t *testing.T) {
 }
 
 func TestMap_Params(t *testing.T) {
-	p := changeset.Map{
-		"changeset.Params slice": []changeset.Params{changeset.Map{}},
-		"changeset.Map":          changeset.Map{},
-		"changeset.Map slice":    []changeset.Map{changeset.Map{}},
-		"map":       map[string]interface{}{},
-		"map slice": []map[string]interface{}{map[string]interface{}{}},
-		"invalid":   true,
+	p := params.Map{
+		"params.Params slice": []params.Params{params.Map{}},
+		"params.Map":          params.Map{},
+		"params.Map slice":    []params.Map{params.Map{}},
+		"map":                 map[string]interface{}{},
+		"map slice":           []map[string]interface{}{map[string]interface{}{}},
+		"invalid":             true,
 	}
 
 	tests := []struct {
 		name   string
-		params []changeset.Params
+		params []params.Params
 		valid  bool
 	}{
 		{
-			name:   "changeset.Params slice",
-			params: []changeset.Params{changeset.Map{}},
+			name:   "params.Params slice",
+			params: []params.Params{params.Map{}},
 			valid:  true,
 		},
 		{
-			name:   "changeset.Map",
+			name:   "params.Map",
 			params: nil,
 			valid:  false,
 		},
 		{
-			name:   "changeset.Map slice",
-			params: []changeset.Params{changeset.Map{}},
+			name:   "params.Map slice",
+			params: []params.Params{params.Map{}},
 			valid:  true,
 		},
 		{
@@ -170,7 +170,7 @@ func TestMap_Params(t *testing.T) {
 		},
 		{
 			name:   "map slice",
-			params: []changeset.Params{changeset.Map{}},
+			params: []params.Params{params.Map{}},
 			valid:  true,
 		},
 		{
