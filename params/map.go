@@ -36,14 +36,14 @@ func (m Map) Value(name string, typ reflect.Type) (interface{}, bool) {
 		return nil, true
 	}
 
-	if (typ.Kind() == reflect.Slice || typ.Kind() == reflect.Array) && (rt.Kind() == reflect.Slice || rt.Kind() == reflect.Array) && rt.Elem().Kind() == reflect.Interface {
-		result := reflect.Zero(typ)
+	if typ.Kind() == reflect.Slice && (rt.Kind() == reflect.Slice || rt.Kind() == reflect.Array) && rt.Elem().Kind() == reflect.Interface {
+		result := reflect.MakeSlice(typ, rv.Len(), rv.Len())
 		elemTyp := typ.Elem()
 
 		for i := 0; i < rv.Len(); i++ {
 			elem := rv.Index(i)
 			if elem.Elem().Type().ConvertibleTo(elemTyp) {
-				result = reflect.Append(result, elem.Elem().Convert(elemTyp))
+				result.Index(i).Set(elem.Elem().Convert(elemTyp))
 			} else {
 				return nil, false
 			}
