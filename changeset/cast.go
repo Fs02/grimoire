@@ -39,7 +39,7 @@ func Cast(data interface{}, params params.Params, fields []string, opts ...Optio
 			continue
 		}
 
-		if value, valid := params.Value(field, typ); valid {
+		if value, valid := params.GetWithType(field, typ); valid {
 			if (typ.Kind() == reflect.Slice || typ.Kind() == reflect.Array) || (!vexist && value != nil) || (vexist && currentValue != value) {
 				ch.changes[field] = value
 			}

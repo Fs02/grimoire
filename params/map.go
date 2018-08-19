@@ -13,11 +13,17 @@ func (m Map) Exists(name string) bool {
 	return exists
 }
 
-// Value returns value given from given name and type.
+// Get returns value as interface.
+// returns nil if value doens't exists.
+func (m Map) Get(name string) interface{} {
+	return m[name]
+}
+
+// GetWithType returns value given from given name and type.
 // second return value will only be false if the type of parameter is not convertible to requested type.
 // If value is not convertible to type, it'll return nil, false
 // If value is not exists, it will return nil, true
-func (m Map) Value(name string, typ reflect.Type) (interface{}, bool) {
+func (m Map) GetWithType(name string, typ reflect.Type) (interface{}, bool) {
 	value := m[name]
 
 	if value == nil {
@@ -59,8 +65,8 @@ func (m Map) Value(name string, typ reflect.Type) (interface{}, bool) {
 	return rv.Convert(typ).Interface(), true
 }
 
-// Params returns nested param
-func (m Map) Params(name string) (Params, bool) {
+// GetParams returns nested param
+func (m Map) GetParams(name string) (Params, bool) {
 	if val, exist := m[name]; exist {
 		if par, ok := val.(Params); ok {
 			return par, ok
@@ -74,8 +80,8 @@ func (m Map) Params(name string) (Params, bool) {
 	return nil, false
 }
 
-// ParamsSlice returns slice of nested param
-func (m Map) ParamsSlice(name string) ([]Params, bool) {
+// GetParamsSlice returns slice of nested param
+func (m Map) GetParamsSlice(name string) ([]Params, bool) {
 	if val, exist := m[name]; exist {
 		if pars, ok := val.([]Params); ok {
 			return pars, ok

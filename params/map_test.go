@@ -14,7 +14,13 @@ func TestMap_Exists(t *testing.T) {
 	assert.False(t, p.Exists("not-exists"))
 }
 
-func TestMap_Value(t *testing.T) {
+func TestMap_Get(t *testing.T) {
+	p := params.Map{"exists": true}
+	assert.Equal(t, true, p.Get("exists"))
+	assert.Equal(t, nil, p.Get("not-exists"))
+}
+
+func TestMap_GetWithType(t *testing.T) {
 	p := params.Map{
 		"nil":                      (*bool)(nil),
 		"incorrect type":           "some string",
@@ -76,14 +82,14 @@ func TestMap_Value(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			value, valid := p.Value(tt.name, tt.typ)
+			value, valid := p.GetWithType(tt.name, tt.typ)
 			assert.Equal(t, tt.value, value)
 			assert.Equal(t, tt.valid, valid)
 		})
 	}
 }
 
-func TestMap_Params(t *testing.T) {
+func TestMap_GetParams(t *testing.T) {
 	p := params.Map{
 		"params.Map":       params.Map{},
 		"params.Map slice": []params.Map{},
@@ -126,14 +132,14 @@ func TestMap_Params(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			param, valid := p.Params(tt.name)
+			param, valid := p.GetParams(tt.name)
 			assert.Equal(t, tt.param, param)
 			assert.Equal(t, tt.valid, valid)
 		})
 	}
 }
 
-func TestMap_ParamsSlice(t *testing.T) {
+func TestMap_GetParamsSlice(t *testing.T) {
 	p := params.Map{
 		"params.Params slice": []params.Params{params.Map{}},
 		"params.Map":          params.Map{},
@@ -182,7 +188,7 @@ func TestMap_ParamsSlice(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			params, valid := p.ParamsSlice(tt.name)
+			params, valid := p.GetParamsSlice(tt.name)
 			assert.Equal(t, tt.params, params)
 			assert.Equal(t, tt.valid, valid)
 		})

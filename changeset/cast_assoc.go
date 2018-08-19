@@ -41,7 +41,7 @@ func CastAssoc(ch *Changeset, field string, fn ChangeFunc, opts ...Option) {
 }
 
 func castOne(ch *Changeset, field string, fn ChangeFunc) bool {
-	par, valid := ch.params.Params(field)
+	par, valid := ch.params.GetParams(field)
 	if !valid {
 		return false
 	}
@@ -63,7 +63,7 @@ func castOne(ch *Changeset, field string, fn ChangeFunc) bool {
 }
 
 func castMany(ch *Changeset, field string, fn ChangeFunc) bool {
-	spar, valid := ch.params.ParamsSlice(field)
+	spar, valid := ch.params.GetParamsSlice(field)
 	if !valid {
 		return false
 	}

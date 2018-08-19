@@ -15,7 +15,13 @@ func TestJSON_Exists(t *testing.T) {
 	assert.False(t, p.Exists("not-exists"))
 }
 
-func TestJSON_Value(t *testing.T) {
+func TestJSON_Get(t *testing.T) {
+	p := params.ParseJSON(`{"exists": true}`)
+	assert.Equal(t, true, p.Get("exists"))
+	assert.Equal(t, nil, p.Get("not-exists"))
+}
+
+func TestJSON_GetWithType(t *testing.T) {
 	p := params.ParseJSON(`{
 		"nil": null,
 		"incorrect type": "some string",
@@ -304,14 +310,14 @@ func TestJSON_Value(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			value, valid := p.Value(tt.field, tt.typ)
+			value, valid := p.GetWithType(tt.field, tt.typ)
 			assert.Equal(t, tt.value, value)
 			assert.Equal(t, tt.valid, valid)
 		})
 	}
 }
 
-func TestJSON_Params(t *testing.T) {
+func TestJSON_GetParams(t *testing.T) {
 	p := params.ParseJSON(`{
 		"object": {},
 		"array": [],
@@ -338,14 +344,14 @@ func TestJSON_Params(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			param, valid := p.Params(tt.name)
+			param, valid := p.GetParams(tt.name)
 			assert.Equal(t, tt.valid, valid)
 			assert.Equal(t, tt.valid, param != nil)
 		})
 	}
 }
 
-func TestJSON_ParamsSlice(t *testing.T) {
+func TestJSON_GetParamsSlice(t *testing.T) {
 	p := params.ParseJSON(`{
 		"array of object": [{}, {}],
 		"array of array": [[], []],
@@ -392,7 +398,7 @@ func TestJSON_ParamsSlice(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			params, valid := p.ParamsSlice(tt.name)
+			params, valid := p.GetParamsSlice(tt.name)
 			assert.Equal(t, tt.valid, valid)
 			assert.Equal(t, tt.valid, params != nil)
 		})

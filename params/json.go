@@ -21,11 +21,17 @@ func (json *JSON) Exists(name string) bool {
 	return json.fetch(name).Exists()
 }
 
-// Value returns value given from given name and type.
+// Get returns value as interface.
+// returns nil if value doens't exists.
+func (json JSON) Get(name string) interface{} {
+	return json.Result.Get(name).Value()
+}
+
+// GetWithType returns value given from given name and type.
 // second return value will only be false if the type of parameter is not convertible to requested type.
 // If value is not convertible to type, it'll return nil, false
 // If value is not exists, it will return nil, true
-func (json *JSON) Value(name string, typ reflect.Type) (interface{}, bool) {
+func (json *JSON) GetWithType(name string, typ reflect.Type) (interface{}, bool) {
 	value := json.fetch(name)
 	if value.IsArray() && typ.Kind() == reflect.Slice {
 		array := value.Array()
@@ -46,8 +52,8 @@ func (json *JSON) Value(name string, typ reflect.Type) (interface{}, bool) {
 	return json.convert(value, typ)
 }
 
-// Params returns nested param
-func (json *JSON) Params(name string) (Params, bool) {
+// GetParams returns nested param
+func (json *JSON) GetParams(name string) (Params, bool) {
 	if value := json.fetch(name); value.IsObject() {
 		return &JSON{Result: value}, true
 	}
@@ -55,8 +61,8 @@ func (json *JSON) Params(name string) (Params, bool) {
 	return nil, false
 }
 
-// ParamsSlice returns slice of nested param
-func (json *JSON) ParamsSlice(name string) ([]Params, bool) {
+// GetParamsSlice returns slice of nested param
+func (json *JSON) GetParamsSlice(name string) ([]Params, bool) {
 	if value := json.fetch(name); value.IsArray() {
 		pars := value.Array()
 		mpar := make([]Params, len(pars))
@@ -129,7 +135,7 @@ func (json *JSON) fetch(name string) gjson.Result {
 		return result.(gjson.Result)
 	}
 
-	result := json.Get(name)
+	result := json.Result.Get(name)
 	json.results.Store(name, result)
 	return result
 }
