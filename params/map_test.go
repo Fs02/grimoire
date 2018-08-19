@@ -83,7 +83,7 @@ func TestMap_Value(t *testing.T) {
 	}
 }
 
-func TestMap_Param(t *testing.T) {
+func TestMap_Params(t *testing.T) {
 	p := params.Map{
 		"params.Map":       params.Map{},
 		"params.Map slice": []params.Map{},
@@ -133,7 +133,7 @@ func TestMap_Param(t *testing.T) {
 	}
 }
 
-func TestMap_Params(t *testing.T) {
+func TestMap_ParamsSlice(t *testing.T) {
 	p := params.Map{
 		"params.Params slice": []params.Params{params.Map{}},
 		"params.Map":          params.Map{},

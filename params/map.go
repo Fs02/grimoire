@@ -86,7 +86,7 @@ func (m Map) ParamsSlice(name string) ([]Params, bool) {
 			for i, par := range pars {
 				mpar[i] = Map(par)
 			}
-			return mpar, ok
+			return mpar, true
 		}
 
 		if pars, ok := val.([]map[string]interface{}); ok {
@@ -94,7 +94,7 @@ func (m Map) ParamsSlice(name string) ([]Params, bool) {
 			for i, par := range pars {
 				mpar[i] = Map(par)
 			}
-			return mpar, ok
+			return mpar, true
 		}
 	}
 

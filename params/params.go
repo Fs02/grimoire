@@ -1,3 +1,4 @@
+// Package params defines different types of params used for changeset input.
 package params
 
 import (
