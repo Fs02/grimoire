@@ -2,16 +2,30 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
-    <loc>https://fs02.github.io/grimoire/index.html</loc>
+    <loc>https://fs02.github.io/grimoire/crud/update.html</loc>
     
-    <lastmod>2018-06-02T09:01:20.529Z</lastmod>
+    <lastmod>2018-08-21T16:37:15.140Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>https://fs02.github.io/grimoire/crud/insert.html</loc>
+    
+    <lastmod>2018-08-21T16:33:48.312Z</lastmod>
     
   </url>
   
   <url>
     <loc>https://fs02.github.io/grimoire/adapters.html</loc>
     
-    <lastmod>2018-05-14T18:14:51.105Z</lastmod>
+    <lastmod>2018-08-21T16:33:24.345Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>https://fs02.github.io/grimoire/index.html</loc>
+    
+    <lastmod>2018-08-21T16:32:42.521Z</lastmod>
     
   </url>
   
@@ -37,13 +51,6 @@
   </url>
   
   <url>
-    <loc>https://fs02.github.io/grimoire/crud/update.html</loc>
-    
-    <lastmod>2018-05-14T18:11:29.949Z</lastmod>
-    
-  </url>
-  
-  <url>
     <loc>https://fs02.github.io/grimoire/crud/query.html</loc>
     
     <lastmod>2018-05-14T18:11:09.969Z</lastmod>
@@ -54,13 +61,6 @@
     <loc>https://fs02.github.io/grimoire/crud/delete.html</loc>
     
     <lastmod>2018-05-14T18:10:44.389Z</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>https://fs02.github.io/grimoire/crud/insert.html</loc>
-    
-    <lastmod>2018-05-14T18:10:38.992Z</lastmod>
     
   </url>
   
