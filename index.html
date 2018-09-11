@@ -33,9 +33,7 @@
       <div id="react-search-results-root"></div>
       <div id="page-content" class="doc-formatting">
         <h1 id="Grimoire"><a href="#Grimoire" class="headerlink" title="Grimoire"></a>Grimoire</h1><p><a href="https://godoc.org/github.com/Fs02/grimoire" target="_blank" rel="noopener"><img src="https://godoc.org/github.com/Fs02/grimoire?status.svg" alt="GoDoc"></a></p>
-<p>Grimoire is a flexible ORM for golang.
-It features flexible query API and builtin validation.
-It currently supports MySQL, PostgreSQL and SQLite3 but a custom adapter can be implemented easily using the Adapter interface.</p>
+<p>Grimoire is a database access layer inspired by Ecto. It features a flexible query API and built-in validation. It currently supports MySQL, PostgreSQL, and SQLite3 but a custom adapter can be implemented easily using the Adapter interface.</p>
 <p>Features:</p>
 <ul>
 <li>Query Builder</li>
@@ -46,6 +44,7 @@ It currently supports MySQL, PostgreSQL and SQLite3 but a custom adapter can be 
 <li>Multi adapter support</li>
 <li>Logger</li>
 </ul>
+<h2 id="Motivation"><a href="#Motivation" class="headerlink" title="Motivation"></a>Motivation</h2><p>Common go ORM accepts struct as a value for modifying records which has a problem of unable to differentiate between an empty, nil, or undefined value. It’s a tricky problem especially when you want to have an endpoint that supports partial updates. Grimoire attempts to solve that problem by integrating Changeset system inspired from Elixir’s Ecto. Changeset is a form like entity which allows us to not only solve that problem but also help us with casting, validations, and constraints check.</p>
 <h2 id="Install"><a href="#Install" class="headerlink" title="Install"></a>Install</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">go get github.com/Fs02/grimoire</span><br></pre></td></tr></table></figure>
 <h2 id="Examples"><a href="#Examples" class="headerlink" title="Examples"></a>Examples</h2><ul>
 <li><a href="https://github.com/Fs02/grimoire-todo-example" target="_blank" rel="noopener">Todo API</a></li>

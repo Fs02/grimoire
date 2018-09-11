@@ -2,6 +2,13 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>https://fs02.github.io/grimoire/index.html</loc>
+    
+    <lastmod>2018-09-11T07:22:29.108Z</lastmod>
+    
+  </url>
+  
+  <url>
     <loc>https://fs02.github.io/grimoire/crud/update.html</loc>
     
     <lastmod>2018-08-21T16:37:15.140Z</lastmod>
@@ -19,13 +26,6 @@
     <loc>https://fs02.github.io/grimoire/adapters.html</loc>
     
     <lastmod>2018-08-21T16:33:24.345Z</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>https://fs02.github.io/grimoire/index.html</loc>
-    
-    <lastmod>2018-08-21T16:32:42.521Z</lastmod>
     
   </url>
   
