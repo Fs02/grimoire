@@ -41,7 +41,7 @@ func CastAssoc(ch *Changeset, field string, fn ChangeFunc, opts ...Option) {
 	}
 
 	_, found := ch.changes[field]
-	if options.assocRequired && !found {
+	if options.required && !found {
 		options.message = CastAssocRequiredMessage
 		msg := strings.Replace(options.message, "{field}", field, 1)
 		AddError(ch, field, msg)

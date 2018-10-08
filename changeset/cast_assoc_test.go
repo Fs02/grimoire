@@ -402,10 +402,10 @@ func TestCastAssoc_optionRequired(t *testing.T) {
 	}
 
 	invalidCh := Cast(data, invalidInput, []string{"field1", "field2"})
-	CastAssoc(invalidCh, "field3", changeInner, AssocRequired(true))
+	CastAssoc(invalidCh, "field3", changeInner, Required(true))
 
 	validCh := Cast(data, validInput, []string{"field1", "field2"})
-	CastAssoc(validCh, "field3", changeInner, AssocRequired(true))
+	CastAssoc(validCh, "field3", changeInner, Required(true))
 
 	assert.NotNil(t, invalidCh.Errors())
 	assert.Nil(t, validCh.Errors())

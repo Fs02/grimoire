@@ -2,12 +2,12 @@ package changeset
 
 // Options applicable to changeset.
 type Options struct {
-	message       string
-	code          int
-	name          string
-	exact         bool
-	changeOnly    bool
-	assocRequired bool
+	message    string
+	code       int
+	name       string
+	exact      bool
+	changeOnly bool
+	required   bool
 }
 
 // Option for changeset operation.
@@ -54,8 +54,8 @@ func ChangeOnly(changeOnly bool) Option {
 	}
 }
 
-func AssocRequired(required bool) Option {
+func Required(required bool) Option {
 	return func(opts *Options) {
-		opts.assocRequired = required
+		opts.required = required
 	}
 }
