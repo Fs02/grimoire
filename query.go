@@ -5,7 +5,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/Fs02/go-paranoid"
 	"github.com/Fs02/grimoire/c"
 	"github.com/Fs02/grimoire/changeset"
 	"github.com/Fs02/grimoire/errors"
@@ -18,6 +17,8 @@ type Query struct {
 	repo            *Repo
 	Collection      string
 	Fields          []string
+	AggregateField  string
+	AggregateMode   string
 	AsDistinct      bool
 	JoinClause      []c.Join
 	Condition       c.Condition
@@ -144,9 +145,9 @@ func (query Query) One(record interface{}) error {
 	count, err := query.repo.adapter.All(query, record, query.repo.logger...)
 
 	if err != nil {
-		return errors.Wrap(err)
+		return transformError(err)
 	} else if count == 0 {
-		return errors.NotFoundError("no result found")
+		return errors.New("no result found", "", errors.NotFound)
 	} else {
 		return nil
 	}
@@ -155,7 +156,7 @@ func (query Query) One(record interface{}) error {
 // MustOne retrieves one result that match the query.
 // If no result found, it'll panic.
 func (query Query) MustOne(record interface{}) {
-	paranoid.Panic(query.One(record), "grimoire: failed to fetch a record from %s", query.Collection)
+	must(query.One(record))
 }
 
 // All retrieves all results that match the query.
@@ -167,20 +168,37 @@ func (query Query) All(record interface{}) error {
 // MustAll retrieves all results that match the query.
 // It'll panic if any error eccured.
 func (query Query) MustAll(record interface{}) {
-	paranoid.Panic(query.All(record), "grimoire: failed to fetch all record from %s", query.Collection)
+	must(query.All(record))
+}
+
+// Aggregate calculate aggregate over the given field.
+func (query Query) Aggregate(mode string, field string, out interface{}) error {
+	query.AggregateMode = mode
+	query.AggregateField = field
+	return query.repo.adapter.Aggregate(query, out, query.repo.logger...)
+}
+
+// MustAggregate calculate aggregate over the given field.
+// It'll panic if any error eccured.
+func (query Query) MustAggregate(mode string, field string, out interface{}) {
+	must(query.Aggregate(mode, field, out))
 }
 
 // Count retrieves count of results that match the query.
 func (query Query) Count() (int, error) {
-	count, err := query.repo.adapter.Count(query, query.repo.logger...)
-	return count, err
+	var out struct {
+		Count int
+	}
+
+	err := query.Aggregate("count", "*", &out)
+	return out.Count, err
 }
 
 // MustCount retrieves count of results that match the query.
 // It'll panic if any error eccured.
 func (query Query) MustCount() int {
 	count, err := query.Count()
-	paranoid.Panic(err, "grimoire: failed to fetch count records from %s", query.Collection)
+	must(err)
 	return count
 }
 
@@ -225,20 +243,20 @@ func (query Query) Insert(record interface{}, chs ...*changeset.Changeset) error
 	}
 
 	if err != nil {
-		return errors.Wrap(err)
+		return transformError(err, chs...)
 	} else if record == nil || len(ids) == 0 {
 		return nil
 	} else if len(ids) == 1 {
-		return errors.Wrap(query.Find(ids[0]).One(record))
+		return transformError(query.Find(ids[0]).One(record))
 	}
 
-	return errors.Wrap(query.Where(c.In(c.I("id"), ids...)).All(record))
+	return transformError(query.Where(c.In(c.I("id"), ids...)).All(record))
 }
 
 // MustInsert records to database.
 // It'll panic if any error occurred.
 func (query Query) MustInsert(record interface{}, chs ...*changeset.Changeset) {
-	paranoid.Panic(query.Insert(record, chs...), "grimoire: failed inserting records to %s", query.Collection)
+	must(query.Insert(record, chs...))
 }
 
 // Update records in database.
@@ -262,12 +280,12 @@ func (query Query) Update(record interface{}, chs ...*changeset.Changeset) error
 	// perform update
 	err := query.repo.adapter.Update(query, changes, query.repo.logger...)
 	if err != nil {
-		return errors.Wrap(err)
+		return transformError(err, chs...)
 	}
 
 	// should not fetch updated record(s) if not necessery
 	if record != nil {
-		return errors.Wrap(query.All(record))
+		return transformError(query.All(record))
 	}
 
 	return nil
@@ -276,13 +294,13 @@ func (query Query) Update(record interface{}, chs ...*changeset.Changeset) error
 // MustUpdate records in database.
 // It'll panic if any error occurred.
 func (query Query) MustUpdate(record interface{}, chs ...*changeset.Changeset) {
-	paranoid.Panic(query.Update(record, chs...), "grimoire: failed updating records from %s", query.Collection)
+	must(query.Update(record, chs...))
 }
 
 func cloneChangeset(out map[string]interface{}, changes map[string]interface{}) {
 	for k, v := range changes {
 		// skip if not scannable
-		if !internal.Scannable(reflect.TypeOf(v)) {
+		if v == nil || !internal.Scannable(reflect.TypeOf(v)) {
 			continue
 		}
 
@@ -313,6 +331,7 @@ func getFields(query Query, chs []*changeset.Changeset) []string {
 
 		if _, exist := query.Changes[f]; exist {
 			fields = append(fields, f)
+			continue
 		}
 
 		for _, ch := range chs {
@@ -383,18 +402,18 @@ func (query Query) Save(record interface{}) error {
 // MustSave puts a record to database.
 // It'll panic if any error eccured.
 func (query Query) MustSave(record interface{}) {
-	paranoid.Panic(query.Save(record), "grimoire: failed saving a record to %s", query.Collection)
+	must(query.Save(record))
 }
 
 // Delete deletes all results that match the query.
 func (query Query) Delete() error {
-	return errors.Wrap(query.repo.adapter.Delete(query, query.repo.logger...))
+	return transformError(query.repo.adapter.Delete(query, query.repo.logger...))
 }
 
 // MustDelete deletes all results that match the query.
 // It'll panic if any error eccured.
 func (query Query) MustDelete() {
-	paranoid.Panic(query.Delete(), "grimoire: failed deleting records from %s", query.Collection)
+	must(query.Delete())
 }
 
 type preloadTarget struct {
@@ -459,9 +478,9 @@ func (query Query) Preload(record interface{}, field string) error {
 }
 
 // MustPreload loads association with given query.
-// It'll panic if any error occured.
+// It'll panic if any error occurred.
 func (query Query) MustPreload(record interface{}, field string) {
-	paranoid.Panic(query.Preload(record, field), "grimoire: failed when preloading %s to %T", field, record)
+	must(query.Preload(record, field))
 }
 
 func traversePreloadTarget(rv reflect.Value, path []string) []preloadTarget {
@@ -482,6 +501,10 @@ func traversePreloadTarget(rv reflect.Value, path []string) []preloadTarget {
 	}
 
 	if fv.Kind() == reflect.Ptr && len(path) != 1 {
+		if fv.IsNil() {
+			return result
+		}
+
 		fv = fv.Elem()
 	}
 
@@ -589,4 +612,24 @@ func getPreloadID(fv reflect.Value) interface{} {
 	}
 
 	return fv.Interface()
+}
+
+func transformError(err error, chs ...*changeset.Changeset) error {
+	if err == nil {
+		return nil
+	} else if e, ok := err.(errors.Error); ok {
+		if len(chs) > 0 {
+			return chs[0].Constraints().GetError(e)
+		}
+		return e
+	} else {
+		return errors.NewUnexpected(err.Error())
+	}
+}
+
+// must is grimoire version of paranoid.Panic without context, but only original error.
+func must(err error) {
+	if err != nil {
+		panic(err)
+	}
 }

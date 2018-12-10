@@ -12,6 +12,7 @@ func TestValidateMax(t *testing.T) {
 		"long text",
 		10,
 		[]interface{}{"a", "b", "c", "d", "e", "f"},
+		[]*Changeset{{}, {}, {}, {}, {}, {}},
 		int8(10),
 		int16(10),
 		int32(10),
@@ -40,11 +41,12 @@ func TestValidateMax(t *testing.T) {
 	}
 }
 
-func TestValidateMaxError(t *testing.T) {
+func TestValidateMax_error(t *testing.T) {
 	tests := []interface{}{
 		"long text",
 		10,
 		[]interface{}{"a", "b", "c", "d", "e", "f"},
+		[]*Changeset{{}, {}, {}, {}, {}, {}},
 		int8(10),
 		int16(10),
 		int32(10),
@@ -74,7 +76,7 @@ func TestValidateMaxError(t *testing.T) {
 	}
 }
 
-func TestValidateMaxMissing(t *testing.T) {
+func TestValidateMax_missing(t *testing.T) {
 	ch := &Changeset{}
 	ValidateMax(ch, "field", 5)
 	assert.Nil(t, ch.Errors())

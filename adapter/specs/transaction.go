@@ -7,15 +7,16 @@ import (
 	"github.com/Fs02/grimoire/c"
 	"github.com/Fs02/grimoire/changeset"
 	"github.com/Fs02/grimoire/errors"
+	"github.com/Fs02/grimoire/params"
 	"github.com/stretchr/testify/assert"
 )
 
-var params = map[string]interface{}{
+var input = params.Map{
 	"name":   "whiteviolet",
 	"gender": "male",
 	"age":    18,
 	"note":   "some note here",
-	"addresses": []map[string]interface{}{
+	"addresses": []params.Map{
 		{
 			"address": "Aceh, Indonesia",
 		},
@@ -34,8 +35,8 @@ func Transaction(t *testing.T, repo grimoire.Repo) {
 	}{
 		{"QueryAll", queryAll, nil},
 		{"InsertWithAssoc", insertWithAssoc, nil},
-		{"InsertWithAssocError", insertWithAssocError, errors.NotFoundError("let's rollback")},
-		{"InsertWithAssocPanic", insertWithAssocPanic, errors.NotFoundError("let's rollback")},
+		{"InsertWithAssocError", insertWithAssocError, errors.New("let's rollback", "", errors.NotFound)},
+		{"InsertWithAssocPanic", insertWithAssocPanic, errors.New("let's rollback", "", errors.NotFound)},
 		{"ReplaceAssoc", replaceAssoc, nil},
 	}
 
@@ -60,7 +61,7 @@ func queryAll(t *testing.T) func(repo grimoire.Repo) error {
 func insertWithAssoc(t *testing.T) func(repo grimoire.Repo) error {
 	user := User{}
 
-	ch := changeUser(user, params)
+	ch := changeUser(user, input)
 	assert.Nil(t, ch.Error())
 
 	// transaction block
@@ -76,7 +77,7 @@ func insertWithAssoc(t *testing.T) func(repo grimoire.Repo) error {
 func insertWithAssocError(t *testing.T) func(repo grimoire.Repo) error {
 	user := User{}
 
-	ch := changeUser(user, params)
+	ch := changeUser(user, input)
 	assert.Nil(t, ch.Error())
 
 	// transaction block
@@ -86,14 +87,14 @@ func insertWithAssocError(t *testing.T) func(repo grimoire.Repo) error {
 		repo.From("addresses").Set("user_id", user.ID).MustInsert(&user.Addresses, addresses...)
 
 		// should rollback
-		return errors.NotFoundError("let's rollback")
+		return errors.New("let's rollback", "", errors.NotFound)
 	}
 }
 
 func insertWithAssocPanic(t *testing.T) func(repo grimoire.Repo) error {
 	user := User{}
 
-	ch := changeUser(user, params)
+	ch := changeUser(user, input)
 	assert.Nil(t, ch.Error())
 
 	// transaction block
@@ -103,14 +104,14 @@ func insertWithAssocPanic(t *testing.T) func(repo grimoire.Repo) error {
 		repo.From("addresses").Set("user_id", user.ID).MustInsert(&user.Addresses, addresses...)
 
 		// should rollback
-		panic(errors.NotFoundError("let's rollback"))
+		panic(errors.New("let's rollback", "", errors.NotFound))
 	}
 }
 
 func replaceAssoc(t *testing.T) func(repo grimoire.Repo) error {
 	user := User{}
 
-	ch := changeUser(user, params)
+	ch := changeUser(user, input)
 	assert.Nil(t, ch.Error())
 
 	// transaction block
@@ -125,7 +126,7 @@ func replaceAssoc(t *testing.T) func(repo grimoire.Repo) error {
 	}
 }
 
-func changeUser(user interface{}, params map[string]interface{}) *changeset.Changeset {
+func changeUser(user interface{}, params params.Params) *changeset.Changeset {
 	ch := changeset.Cast(user, params, []string{
 		"name",
 		"gender",
@@ -136,7 +137,7 @@ func changeUser(user interface{}, params map[string]interface{}) *changeset.Chan
 	return ch
 }
 
-func changeAddress(address interface{}, params map[string]interface{}) *changeset.Changeset {
+func changeAddress(address interface{}, params params.Params) *changeset.Changeset {
 	ch := changeset.Cast(address, params, []string{"address"})
 	return ch
 }

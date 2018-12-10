@@ -12,6 +12,7 @@ func TestValidateMin(t *testing.T) {
 		"long text",
 		10,
 		[]interface{}{"a", "b", "c", "d", "e", "f"},
+		[]*Changeset{{}, {}, {}, {}, {}, {}},
 		int8(10),
 		int16(10),
 		int32(10),
@@ -40,11 +41,12 @@ func TestValidateMin(t *testing.T) {
 	}
 }
 
-func TestValidateMinError(t *testing.T) {
+func TestValidateMin_error(t *testing.T) {
 	tests := []interface{}{
 		"long text",
 		10,
 		[]interface{}{"a", "b", "c", "d", "e", "f"},
+		[]*Changeset{{}, {}, {}, {}, {}, {}},
 		int8(10),
 		int16(10),
 		int32(10),
@@ -74,7 +76,7 @@ func TestValidateMinError(t *testing.T) {
 	}
 }
 
-func TestValidateMinMissing(t *testing.T) {
+func TestValidateMin_missing(t *testing.T) {
 	ch := &Changeset{}
 	ValidateMin(ch, "field", 5)
 	assert.Nil(t, ch.Errors())
