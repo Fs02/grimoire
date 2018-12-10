@@ -5,8 +5,6 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/otiai10/ternary"
-
 	"github.com/Fs02/grimoire/errors"
 	"github.com/Fs02/grimoire/params"
 )
@@ -26,7 +24,11 @@ func CastAssoc(ch *Changeset, field string, fn ChangeFunc, opts ...Option) {
 	}
 	options.apply(opts)
 
-	sourceField := ternary.If(options.sourceField != "").String(options.sourceField, field)
+	sourceField := options.sourceField
+	if sourceField == "" {
+		sourceField = field
+	}
+
 	typ, texist := ch.types[field]
 	valid := true
 	if texist && ch.params.Exists(sourceField) {

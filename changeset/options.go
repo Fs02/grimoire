@@ -62,7 +62,7 @@ func Required(required bool) Option {
 }
 
 // Source to define used field name in params.
-func Source(field string) Option {
+func SourceField(field string) Option {
 	return func(opts *Options) {
 		opts.sourceField = field
 	}

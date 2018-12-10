@@ -63,7 +63,7 @@ func TestCastAssoc_one(t *testing.T) {
 	assert.Equal(t, expectedChanges, ch.Changes())
 }
 
-func TestCastAssoc_oneDifferentSource(t *testing.T) {
+func TestCastAssoc_oneDifferentSourceField(t *testing.T) {
 	var inner Inner
 	var data struct {
 		Field1 int
@@ -104,7 +104,7 @@ func TestCastAssoc_oneDifferentSource(t *testing.T) {
 	}
 
 	ch := Cast(data, input, []string{"field1", "field2"})
-	CastAssoc(ch, "field3", changeInner, Source("fieldX"))
+	CastAssoc(ch, "field3", changeInner, SourceField("fieldX"))
 
 	assert.Nil(t, ch.Errors())
 	assert.Equal(t, expectedTypes, ch.types)

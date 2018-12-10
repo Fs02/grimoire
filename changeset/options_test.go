@@ -15,7 +15,7 @@ func TestOptions(t *testing.T) {
 		Exact(true),
 		ChangeOnly(true),
 		Required(true),
-		Source("src"),
+		SourceField("src"),
 	})
 
 	assert.Equal(t, "message", opts.message)
