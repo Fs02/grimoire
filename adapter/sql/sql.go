@@ -118,7 +118,7 @@ func (adapter *Adapter) Commit() error {
 	var err error
 
 	if adapter.Tx == nil {
-		err = errors.NewUnexpected("not in transaction")
+		err = errors.NewUnexpected("unable to commit outside transaction")
 	} else if adapter.savepoint > 0 {
 		_, _, err = adapter.Exec("RELEASE SAVEPOINT s"+strconv.Itoa(adapter.savepoint)+";", []interface{}{})
 	} else {
@@ -133,7 +133,7 @@ func (adapter *Adapter) Rollback() error {
 	var err error
 
 	if adapter.Tx == nil {
-		err = errors.NewUnexpected("not in transaction")
+		err = errors.NewUnexpected("unable to rollback outside transaction")
 	} else if adapter.savepoint > 0 {
 		_, _, err = adapter.Exec("ROLLBACK TO SAVEPOINT s"+strconv.Itoa(adapter.savepoint)+";", []interface{}{})
 	} else {
