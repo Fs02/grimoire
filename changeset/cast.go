@@ -33,15 +33,15 @@ func Cast(data interface{}, params params.Params, fields []string, opts ...Optio
 
 	for _, field := range fields {
 		typ, texist := ch.types[field]
-		currentValue, vexist := ch.values[field]
+		value, vexist := ch.values[field]
 
 		if !params.Exists(field) || !texist {
 			continue
 		}
 
-		if value, valid := params.GetWithType(field, typ); valid {
-			if (typ.Kind() == reflect.Slice || typ.Kind() == reflect.Array) || (!vexist && value != nil) || (vexist && currentValue != value) {
-				ch.changes[field] = value
+		if change, valid := params.GetWithType(field, typ); valid {
+			if (typ.Kind() == reflect.Slice || typ.Kind() == reflect.Array) || (!vexist && change != nil) || (vexist && value != change) || (change == reflect.Zero(typ).Interface()) {
+				ch.changes[field] = change
 			}
 		} else {
 			msg := strings.Replace(options.message, "{field}", field, 1)
