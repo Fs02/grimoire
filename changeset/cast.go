@@ -15,7 +15,8 @@ var CastErrorMessage = "{field} is invalid"
 // params will only be added as changes if it does not have the same value as the field in the data.
 func Cast(data interface{}, params params.Params, fields []string, opts ...Option) *Changeset {
 	options := Options{
-		message: CastErrorMessage,
+		message:     CastErrorMessage,
+		emptyValues: []interface{}{""},
 	}
 	options.apply(opts)
 
@@ -36,6 +37,11 @@ func Cast(data interface{}, params params.Params, fields []string, opts ...Optio
 		typ, texist := ch.types[field]
 
 		if !params.Exists(field) || !texist {
+			continue
+		}
+
+		// ignore if it's an empty value
+		if contains(options.emptyValues, params.Get(field)) {
 			continue
 		}
 
@@ -102,6 +108,16 @@ func mapSchema(data interface{}) (map[string]interface{}, map[string]reflect.Typ
 	}
 
 	return mvalues, mtypes, zero
+}
+
+func contains(vs []interface{}, v interface{}) bool {
+	for i := range vs {
+		if vs[i] == v {
+			return true
+		}
+	}
+
+	return false
 }
 
 // isZero shallowly check wether a field in struct is zero or not

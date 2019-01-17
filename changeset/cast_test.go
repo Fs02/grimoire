@@ -453,7 +453,7 @@ func TestCast_basicZeroValue(t *testing.T) {
 		"field15": "",
 	}
 
-	expectedValuesAndChanges := map[string]interface{}{
+	expectedValues := map[string]interface{}{
 		"field1":  false,
 		"field2":  0,
 		"field3":  int8(0),
@@ -469,6 +469,24 @@ func TestCast_basicZeroValue(t *testing.T) {
 		"field13": float32(0),
 		"field14": float64(0),
 		"field15": "",
+	}
+
+	// Empty string is ignored because it's default of empty values
+	expectedChanges := map[string]interface{}{
+		"field1":  false,
+		"field2":  0,
+		"field3":  int8(0),
+		"field4":  int16(0),
+		"field5":  int32(0),
+		"field6":  int64(0),
+		"field7":  uint(0),
+		"field8":  uint8(0),
+		"field9":  uint16(0),
+		"field10": uint32(0),
+		"field11": uint64(0),
+		"field12": uintptr(0),
+		"field13": float32(0),
+		"field14": float64(0),
 	}
 
 	ch := Cast(data, input, []string{
@@ -490,8 +508,8 @@ func TestCast_basicZeroValue(t *testing.T) {
 	})
 
 	assert.Nil(t, ch.Errors())
-	assert.Equal(t, expectedValuesAndChanges, ch.Changes())
-	assert.Equal(t, expectedValuesAndChanges, ch.values)
+	assert.Equal(t, expectedChanges, ch.Changes())
+	assert.Equal(t, expectedValues, ch.values)
 	assert.Equal(t, expectedTypes, ch.types)
 }
 
