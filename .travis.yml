@@ -5,6 +5,9 @@ env:
     - POSTGRESQL_DATABASE=postgres://postgres@localhost/grimoire_test?sslmode=disable
 language: go
 go:
+  - "1.7.x"
+  - "1.8.x"
+  - "1.9.x"
   - "1.10.x"
   - "1.11.x"
 services:
