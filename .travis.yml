@@ -11,7 +11,7 @@ go:
   - "1.11.x"
 matrix:
   include:
-    - python: '3.5' # this is not strictly necessary
+    - go: "1.8.x"
       env: COVER=-coverprofile=c.out
 services:
   - mysql
