@@ -8,136 +8,67 @@ import (
 	"time"
 )
 
-// FormParams is param type alias for url.Values
-type FormParams map[string][]interface{}
+// Form is param type alias for url.Values
+type Form map[string][]interface{}
 
-func fieldsExtractor(c rune) bool {
-	return c == '[' || c == ']' || c == '.'
-}
-
-func assigns(form FormParams, pfield string, cfield string, index int, values interface{}) {
-	if _, exist := form[pfield]; !exist && pfield != "" && cfield != "" {
-		form[pfield] = []interface{}{FormParams{}}
-	}
-
-	if cfield != "" {
-		if pfield != "" {
-			form = form[pfield][0].(FormParams)
-		}
-
-		if stringValues, ok := values.([]string); ok {
-			for _, value := range stringValues {
-				form[cfield] = append(form[cfield], value)
-			}
-		}
-	} else {
-		// expand
-		if index >= len(form[pfield]) {
-			form[pfield] = append(form[pfield], make([]interface{}, index-len(form[pfield])+1)...)
-		}
-
-		if form[pfield][index] == nil {
-			if values == nil {
-				form[pfield][index] = FormParams{}
-			} else {
-				form[pfield][index] = values
-			}
-		}
-	}
-}
-
-// Form parse form from url values.
-func Form(raw url.Values) FormParams {
-	result := make(FormParams, len(raw))
-
-	for k, v := range raw {
-		fields := strings.FieldsFunc(k, fieldsExtractor)
-
-		pfield, cfield := "", ""
-		form := result
-		for i := range fields {
-			pfield = cfield
-			cfield = fields[i]
-
-			if index, err := strconv.Atoi(cfield); err == nil {
-				if i == len(fields)-1 {
-					assigns(form, pfield, "", index, v[0])
-				} else {
-					assigns(form, pfield, "", index, nil)
-					// if pfield != "" {
-					form = form[pfield][index].(FormParams)
-					// }
-					cfield = "" // set cfield empty, so unnecesary nesting wont be created in the next loop
-				}
-			} else {
-				if i == len(fields)-1 {
-					assigns(form, pfield, cfield, -1, v)
-				} else {
-					assigns(form, pfield, cfield, -1, nil)
-					if pfield != "" {
-						index := len(form[pfield]) - 1
-						form = form[pfield][index].(FormParams)
-					}
-				}
-			}
-		}
-	}
-
-	return result
-}
+var _ Params = (*Form)(nil)
 
 // Exists returns true if key exists.
-func (formParams FormParams) Exists(name string) bool {
-	_, exists := formParams[name]
+func (form Form) Exists(name string) bool {
+	_, exists := form[name]
 	return exists
 }
 
 // Get returns value as interface.
 // returns nil if value doens't exists.
-func (formParams FormParams) Get(name string) interface{} {
-	// TODO: differentiate when values is more than one, then it should be treated as slice
-	// TODO: https://guides.rubyonrails.org/security.html#unsafe-query-generation
-	return formParams[name]
+// the value returned is slice of interface{}
+func (form Form) Get(name string) interface{} {
+	if val, exists := form[name]; exists {
+		return val
+	}
+
+	return nil
 }
 
 // GetWithType returns value given from given name and type.
 // second return value will only be false if the type of parameter is not convertible to requested type.
 // If value is not convertible to type, it'll return nil, false
 // If value is not exists, it will return nil, true
-func (formParams FormParams) GetWithType(name string, typ reflect.Type) (interface{}, bool) {
-	return nil, false
-}
-
-// GetParams returns nested param
-func (formParams FormParams) GetParams(name string) (Params, bool) {
-	if val, exist := formParams[name]; exist && len(val) == 1 {
-		if par, ok := val[0].(Params); ok {
-			return par, ok
-		}
+func (form Form) GetWithType(name string, typ reflect.Type) (interface{}, bool) {
+	value, exist := form[name]
+	if !exist {
+		return nil, true
 	}
 
-	return nil, false
-}
+	if typ.Kind() == reflect.Slice {
+		result := reflect.MakeSlice(typ, len(value), len(value))
+		elmType := typ.Elem()
 
-// GetParamsSlice returns slice of nested param
-func (formParams FormParams) GetParamsSlice(name string) ([]Params, bool) {
-	if val, exist := formParams[name]; exist {
-		pars := make([]Params, len(val))
-		ok := true
+		for i, elm := range value {
+			if str, ok := elm.(string); ok {
+				elmValue, valid := form.convert(str, elmType)
+				if !valid {
+					return nil, false
+				}
 
-		for i := range val {
-			pars[i], ok = val[i].(Params)
-
-			if !ok {
+				result.Index(i).Set(reflect.ValueOf(elmValue))
+			} else {
 				return nil, false
 			}
 		}
+		return result.Interface(), true
+	}
+
+	if len(value) > 0 {
+		if str, ok := value[0].(string); ok {
+			return form.convert(str, typ)
+		}
 	}
 
 	return nil, false
 }
 
-func (formParams FormParams) convert(str string, typ reflect.Type) (interface{}, bool) {
+func (form Form) convert(str string, typ reflect.Type) (interface{}, bool) {
 	result := interface{}(nil)
 	valid := false
 
@@ -205,4 +136,110 @@ func (formParams FormParams) convert(str string, typ reflect.Type) (interface{},
 	}
 
 	return result, valid
+}
+
+// GetParams returns nested param
+func (form Form) GetParams(name string) (Params, bool) {
+	if val, exist := form[name]; exist && len(val) == 1 {
+		if par, ok := val[0].(Params); ok {
+			return par, ok
+		}
+	}
+
+	return nil, false
+}
+
+// GetParamsSlice returns slice of nested param
+func (form Form) GetParamsSlice(name string) ([]Params, bool) {
+	if val, exist := form[name]; exist {
+		pars := make([]Params, len(val))
+		ok := true
+
+		for i := range val {
+			pars[i], ok = val[i].(Form)
+
+			if !ok {
+				return nil, false
+			}
+		}
+
+		return pars, true
+	}
+
+	return nil, false
+}
+
+// ParseForm form from url values.
+func ParseForm(raw url.Values) Form {
+	result := make(Form, len(raw))
+
+	for k, v := range raw {
+		fields := strings.FieldsFunc(k, fieldsExtractor)
+
+		pfield, cfield := "", ""
+		form := result
+		for i := range fields {
+			pfield = cfield
+			cfield = fields[i]
+
+			if index, err := strconv.Atoi(cfield); err == nil {
+				if i == len(fields)-1 {
+					assigns(form, pfield, "", index, v[0])
+				} else {
+					assigns(form, pfield, "", index, nil)
+					// if pfield != "" {
+					form = form[pfield][index].(Form)
+					// }
+					cfield = "" // set cfield empty, so unnecesary nesting wont be created in the next loop
+				}
+			} else {
+				if i == len(fields)-1 {
+					assigns(form, pfield, cfield, -1, v)
+				} else {
+					assigns(form, pfield, cfield, -1, nil)
+					if pfield != "" {
+						index := len(form[pfield]) - 1
+						form = form[pfield][index].(Form)
+					}
+				}
+			}
+		}
+	}
+
+	return result
+}
+
+func fieldsExtractor(c rune) bool {
+	return c == '[' || c == ']' || c == '.'
+}
+
+func assigns(form Form, pfield string, cfield string, index int, values interface{}) {
+	if _, exist := form[pfield]; !exist && pfield != "" && cfield != "" {
+		form[pfield] = []interface{}{Form{}}
+	}
+
+	if cfield != "" {
+		if pfield != "" {
+			form = form[pfield][0].(Form)
+		}
+
+		if stringValues, ok := values.([]string); ok {
+			for _, value := range stringValues {
+				form[cfield] = append(form[cfield], value)
+			}
+		}
+	} else {
+		// expand
+		if index >= len(form[pfield]) {
+			form[pfield] = append(form[pfield], make([]interface{}, index-len(form[pfield])+1)...)
+		}
+
+		if form[pfield][index] == nil {
+			if values == nil {
+				form[pfield][index] = Form{}
+			} else {
+				form[pfield][index] = values
+			}
+		}
+	}
 }

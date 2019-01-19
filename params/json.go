@@ -14,6 +14,8 @@ type JSON struct {
 	results sync.Map
 }
 
+var _ Params = (*JSON)(nil)
+
 // Exists returns true if key exists.
 func (json *JSON) Exists(name string) bool {
 	return json.fetch(name).Exists()
