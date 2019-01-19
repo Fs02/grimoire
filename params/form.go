@@ -2,8 +2,10 @@ package params
 
 import (
 	"net/url"
+	"reflect"
 	"strconv"
 	"strings"
+	"time"
 )
 
 // FormParams is param type alias for url.Values
@@ -93,58 +95,18 @@ func (formParams FormParams) Exists(name string) bool {
 // Get returns value as interface.
 // returns nil if value doens't exists.
 func (formParams FormParams) Get(name string) interface{} {
+	// TODO: differentiate when values is more than one, then it should be treated as slice
+	// TODO: https://guides.rubyonrails.org/security.html#unsafe-query-generation
 	return formParams[name]
 }
 
-// // GetWithType returns value given from given name and type.
-// // second return value will only be false if the type of parameter is not convertible to requested type.
-// // If value is not convertible to type, it'll return nil, false
-// // If value is not exists, it will return nil, true
-// func (m Map) GetWithType(name string, typ reflect.Type) (interface{}, bool) {
-// 	value := m[name]
-
-// 	if value == nil {
-// 		return nil, true
-// 	}
-
-// 	rv := reflect.ValueOf(value)
-// 	rt := rv.Type()
-
-// 	if rt.Kind() == reflect.Ptr {
-// 		rv = rv.Elem()
-// 		rt = rt.Elem()
-// 	}
-
-// 	if !rv.IsValid() {
-// 		return nil, true
-// 	}
-
-// 	if typ.Kind() == reflect.Slice && (rt.Kind() == reflect.Slice || rt.Kind() == reflect.Array) {
-// 		result := reflect.MakeSlice(typ, rv.Len(), rv.Len())
-// 		elemTyp := typ.Elem()
-
-// 		for i := 0; i < rv.Len(); i++ {
-// 			elem := rv.Index(i)
-// 			if elem.Kind() == reflect.Interface {
-// 				elem = elem.Elem()
-// 			}
-
-// 			if elem.Type().ConvertibleTo(elemTyp) {
-// 				result.Index(i).Set(elem.Convert(elemTyp))
-// 			} else {
-// 				return nil, false
-// 			}
-// 		}
-
-// 		return result.Interface(), true
-// 	}
-
-// 	if !rt.ConvertibleTo(typ) {
-// 		return nil, false
-// 	}
-
-// 	return rv.Convert(typ).Interface(), true
-// }
+// GetWithType returns value given from given name and type.
+// second return value will only be false if the type of parameter is not convertible to requested type.
+// If value is not convertible to type, it'll return nil, false
+// If value is not exists, it will return nil, true
+func (formParams FormParams) GetWithType(name string, typ reflect.Type) (interface{}, bool) {
+	return nil, false
+}
 
 // GetParams returns nested param
 func (formParams FormParams) GetParams(name string) (Params, bool) {
@@ -173,4 +135,74 @@ func (formParams FormParams) GetParamsSlice(name string) ([]Params, bool) {
 	}
 
 	return nil, false
+}
+
+func (formParams FormParams) convert(str string, typ reflect.Type) (interface{}, bool) {
+	result := interface{}(nil)
+	valid := false
+
+	switch typ.Kind() {
+	case reflect.Bool:
+		if parsed, err := strconv.ParseBool(str); err == nil {
+			result, valid = parsed, true
+		}
+	case reflect.Int:
+		if parsed, err := strconv.ParseInt(str, 10, 0); err == nil {
+			result, valid = int(parsed), true
+		}
+	case reflect.Int8:
+		if parsed, err := strconv.ParseInt(str, 10, 8); err == nil {
+			result, valid = int8(parsed), true
+		}
+	case reflect.Int16:
+		if parsed, err := strconv.ParseInt(str, 10, 16); err == nil {
+			result, valid = int16(parsed), true
+		}
+	case reflect.Int32:
+		if parsed, err := strconv.ParseInt(str, 10, 32); err == nil {
+			result, valid = int32(parsed), true
+		}
+	case reflect.Int64:
+		if parsed, err := strconv.ParseInt(str, 10, 64); err == nil {
+			result, valid = int64(parsed), true
+		}
+	case reflect.Uint:
+		if parsed, err := strconv.ParseUint(str, 10, 0); err == nil {
+			result, valid = uint(parsed), true
+		}
+	case reflect.Uint8:
+		if parsed, err := strconv.ParseUint(str, 10, 8); err == nil {
+			result, valid = uint8(parsed), true
+		}
+	case reflect.Uint16:
+		if parsed, err := strconv.ParseUint(str, 10, 16); err == nil {
+			result, valid = uint16(parsed), true
+		}
+	case reflect.Uint32:
+		if parsed, err := strconv.ParseUint(str, 10, 32); err == nil {
+			result, valid = uint32(parsed), true
+		}
+	case reflect.Uint64:
+		if parsed, err := strconv.ParseUint(str, 10, 64); err == nil {
+			result, valid = uint64(parsed), true
+		}
+	case reflect.Float32:
+		if parsed, err := strconv.ParseFloat(str, 32); err == nil {
+			result, valid = float32(parsed), true
+		}
+	case reflect.Float64:
+		if parsed, err := strconv.ParseFloat(str, 64); err == nil {
+			result, valid = float64(parsed), true
+		}
+	case reflect.String:
+		result, valid = str, true
+	case reflect.Struct:
+		if typ == timeType {
+			if parsed, err := time.Parse(time.RFC3339, str); err == nil {
+				result, valid = parsed, true
+			}
+		}
+	}
+
+	return result, valid
 }

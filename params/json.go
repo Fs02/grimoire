@@ -8,8 +8,6 @@ import (
 	"github.com/tidwall/gjson"
 )
 
-var timeType = reflect.TypeOf(time.Time{})
-
 // JSON is param type for json document.
 type JSON struct {
 	gjson.Result
