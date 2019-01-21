@@ -1332,6 +1332,8 @@ func TestQuery_Preload_ptr(t *testing.T) {
 	assert.Nil(t, query.Preload(&owner, "User"))
 	assert.Equal(t, result[0], *owner.User)
 	assert.Equal(t, &id, owner.UserID)
+
+	mock.AssertExpectations(t)
 }
 
 func TestQuery_Preload_slicePtr(t *testing.T) {
