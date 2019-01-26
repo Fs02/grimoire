@@ -179,55 +179,7 @@ func (form Form) GetParamsSlice(name string) ([]Params, bool) {
 	return nil, false
 }
 
-// ParseForm form from url values.
-func ParseForm(raw url.Values) Form {
-	result := make(Form, len(raw))
-
-	for k, v := range raw {
-		if len(v) == 0 {
-			continue
-		}
-
-		fields := strings.FieldsFunc(k, fieldsExtractor)
-
-		pfield, cfield := "", ""
-		form := result
-		for i := range fields {
-			pfield = cfield
-			cfield = fields[i]
-
-			if index, err := strconv.Atoi(cfield); err == nil {
-				if i == len(fields)-1 {
-					assigns(form, pfield, "", index, v[0])
-				} else {
-					assigns(form, pfield, "", index, nil)
-					// if pfield != "" {
-					form = form[pfield][index].(Form)
-					// }
-					cfield = "" // set cfield empty, so unnecesary nesting wont be created in the next loop
-				}
-			} else {
-				if i == len(fields)-1 {
-					assigns(form, pfield, cfield, -1, v)
-				} else {
-					assigns(form, pfield, cfield, -1, nil)
-					if pfield != "" {
-						index := len(form[pfield]) - 1
-						form = form[pfield][index].(Form)
-					}
-				}
-			}
-		}
-	}
-
-	return result
-}
-
-func fieldsExtractor(c rune) bool {
-	return c == '[' || c == ']' || c == '.'
-}
-
-func assigns(form Form, pfield string, cfield string, index int, values interface{}) {
+func (form Form) assigns(pfield string, cfield string, index int, values interface{}) {
 	if _, exist := form[pfield]; !exist && pfield != "" && cfield != "" {
 		form[pfield] = []interface{}{Form{}}
 	}
@@ -256,4 +208,50 @@ func assigns(form Form, pfield string, cfield string, index int, values interfac
 			}
 		}
 	}
+}
+
+// ParseForm form from url values.
+func ParseForm(raw url.Values) Form {
+	result := make(Form, len(raw))
+
+	for k, v := range raw {
+		if len(v) == 0 {
+			continue
+		}
+
+		fields := strings.FieldsFunc(k, fieldsExtractor)
+
+		pfield, cfield := "", ""
+		form := result
+		for i := range fields {
+			pfield = cfield
+			cfield = fields[i]
+
+			if index, err := strconv.Atoi(cfield); err == nil {
+				if i == len(fields)-1 {
+					form.assigns(pfield, "", index, v[0])
+				} else {
+					form.assigns(pfield, "", index, nil)
+					form = form[pfield][index].(Form)
+					cfield = "" // set cfield empty, so unnecesary nesting wont be created in the next loop
+				}
+			} else {
+				if i == len(fields)-1 {
+					form.assigns(pfield, cfield, -1, v)
+				} else {
+					form.assigns(pfield, cfield, -1, nil)
+					if pfield != "" {
+						index := len(form[pfield]) - 1
+						form = form[pfield][index].(Form)
+					}
+				}
+			}
+		}
+	}
+
+	return result
+}
+
+func fieldsExtractor(c rune) bool {
+	return c == '[' || c == ']' || c == '.'
 }
