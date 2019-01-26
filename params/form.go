@@ -117,6 +117,10 @@ func (form Form) convert(str string, typ reflect.Type) (interface{}, bool) {
 		if parsed, err := strconv.ParseUint(str, 10, 64); err == nil {
 			result, valid = uint64(parsed), true
 		}
+	case reflect.Uintptr:
+		if parsed, err := strconv.ParseUint(str, 10, 8); err == nil {
+			result, valid = uintptr(parsed), true
+		}
 	case reflect.Float32:
 		if parsed, err := strconv.ParseFloat(str, 32); err == nil {
 			result, valid = float32(parsed), true
@@ -133,6 +137,12 @@ func (form Form) convert(str string, typ reflect.Type) (interface{}, bool) {
 				result, valid = parsed, true
 			}
 		}
+	}
+
+	// handle type alias
+	if valid && typ.PkgPath() != "" && typ.Kind() != reflect.Struct && typ.Kind() != reflect.Slice && typ.Kind() != reflect.Array {
+		rv := reflect.ValueOf(result)
+		return rv.Convert(typ).Interface(), true
 	}
 
 	return result, valid
