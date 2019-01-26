@@ -40,8 +40,10 @@ func (form Form) GetWithType(name string, typ reflect.Type) (interface{}, bool) 
 		return nil, true
 	}
 
+	result, valid := interface{}(nil), false
+
 	if typ.Kind() == reflect.Slice {
-		result := reflect.MakeSlice(typ, len(value), len(value))
+		rv := reflect.MakeSlice(typ, len(value), len(value))
 		elmType := typ.Elem()
 
 		for i, elm := range value {
@@ -51,21 +53,20 @@ func (form Form) GetWithType(name string, typ reflect.Type) (interface{}, bool) 
 					return nil, false
 				}
 
-				result.Index(i).Set(reflect.ValueOf(elmValue))
+				rv.Index(i).Set(reflect.ValueOf(elmValue))
 			} else {
 				return nil, false
 			}
 		}
-		return result.Interface(), true
-	}
 
-	if len(value) > 0 {
+		result, valid = rv.Interface(), true
+	} else if len(value) > 0 {
 		if str, ok := value[0].(string); ok {
-			return form.convert(str, typ)
+			result, valid = form.convert(str, typ)
 		}
 	}
 
-	return nil, false
+	return result, valid
 }
 
 func (form Form) convert(str string, typ reflect.Type) (interface{}, bool) {
