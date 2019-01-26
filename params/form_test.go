@@ -404,9 +404,7 @@ func TestForm_GetParamsSlice(t *testing.T) {
 		"array of value[1]":         []string{"false"},
 		"array of mixed[0][value]":  []string{"0"},
 		"array of mixed[1]":         []string{"true"},
-		// "array[0]":                  []string{},
-		// "object[value]":             []string{},
-		"value": []string{"true"},
+		"value":                     []string{"true"},
 	})
 
 	tests := []struct {
@@ -427,14 +425,6 @@ func TestForm_GetParamsSlice(t *testing.T) {
 		},
 		{
 			name:  "array of mixed",
-			valid: false,
-		},
-		// {
-		// 	name:  "array",
-		// 	valid: true,
-		// },
-		{
-			name:  "object",
 			valid: false,
 		},
 		{
@@ -553,6 +543,15 @@ func TestParseForm(t *testing.T) {
 					},
 				},
 			},
+		},
+		{
+			name: "empty",
+			values: url.Values{
+				"value":         []string{},
+				"array[0]":      []string{},
+				"object[value]": []string{},
+			},
+			form: params.Form{},
 		},
 	}
 

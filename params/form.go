@@ -184,6 +184,10 @@ func ParseForm(raw url.Values) Form {
 	result := make(Form, len(raw))
 
 	for k, v := range raw {
+		if len(v) == 0 {
+			continue
+		}
+
 		fields := strings.FieldsFunc(k, fieldsExtractor)
 
 		pfield, cfield := "", ""
