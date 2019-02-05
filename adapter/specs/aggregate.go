@@ -44,25 +44,23 @@ func Aggregate(t *testing.T, repo grimoire.Repo) {
 		field := "id"
 
 		statement, _ := builder.Find(query.Select("count(" + field + ") AS count"))
-		t.Run("AggregateCount|"+statement, func(t *testing.T) {
-			var out []struct {
+		t.Run("Aggregate|"+statement, func(t *testing.T) {
+			var counts []struct {
 				Count int
 			}
 
-			err := query.Aggregate("count", field, &out)
-			assert.True(t, len(out) > 0)
+			err := query.Aggregate("count", field, &counts)
+			assert.True(t, len(counts) > 0)
 			assert.Nil(t, err)
-		})
 
-		statement, _ = builder.Find(query.Select("sum(" + field + ") AS sum"))
-		t.Run("AggregateSum|"+statement, func(t *testing.T) {
-			var out []struct {
+			var sums []struct {
 				Sum int
 			}
 
-			err := query.Aggregate("sum", field, &out)
-			assert.True(t, len(out) > 0)
+			err = query.Aggregate("sum", field, &sums)
+			assert.True(t, len(sums) > 0)
 			assert.Nil(t, err)
+
 		})
 	}
 }
