@@ -10,6 +10,9 @@ import (
 	"github.com/Fs02/grimoire/c"
 )
 
+// UnescapeCharacter disable field escaping when it starts with this character.
+var UnescapeCharacter byte = '^'
+
 var fieldCache sync.Map
 
 // Builder defines information of query builder.
@@ -28,13 +31,9 @@ func (builder *Builder) Find(q grimoire.Query) (string, []interface{}) {
 // Aggregate generates query for aggregation.
 func (builder *Builder) Aggregate(q grimoire.Query) (string, []interface{}) {
 	qs, args := builder.query(q)
+	field := q.AggregateMode + "(" + q.AggregateField + ") AS " + q.AggregateMode
 
-	if q.AggregateMode == "count" && q.AggregateField == "*" {
-		return builder.fields(false, "count(*) AS count") + qs, args
-	}
-
-	field := q.AggregateMode + "(" + q.AggregateField + ")" + " AS " + q.AggregateMode
-	return builder.fields(false, q.AggregateField, field) + qs, args
+	return builder.fields(false, append(q.GroupFields, field)...) + qs, args
 }
 
 func (builder *Builder) query(q grimoire.Query) (string, []interface{}) {
@@ -77,6 +76,11 @@ func (builder *Builder) query(q grimoire.Query) (string, []interface{}) {
 	if s := builder.limitOffset(q.LimitResult, q.OffsetResult); s != "" {
 		buffer.WriteString(" ")
 		buffer.WriteString(s)
+	}
+
+	if q.LockClause != "" {
+		buffer.WriteString(" ")
+		buffer.WriteString(q.LockClause)
 	}
 
 	buffer.WriteString(";")
@@ -512,10 +516,9 @@ func (builder *Builder) escape(field string) string {
 		return escapedField.(string)
 	}
 
-	start := strings.IndexRune(field, '(')
-	end := strings.IndexRune(field, ')')
-
-	if start >= 0 && end >= 0 && end > start {
+	if len(field) > 0 && field[0] == UnescapeCharacter {
+		escapedField = field[1:]
+	} else if start, end := strings.IndexRune(field, '('), strings.IndexRune(field, ')'); start >= 0 && end >= 0 && end > start {
 		escapedField = field[:start+1] + builder.escape(field[start+1:end]) + field[end:]
 	} else if strings.HasSuffix(field, "*") {
 		escapedField = builder.config.EscapeChar + strings.Replace(field, ".", builder.config.EscapeChar+".", 1)
