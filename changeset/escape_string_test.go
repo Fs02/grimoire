@@ -19,7 +19,7 @@ func TestEscapeString(t *testing.T) {
 		"username": `"Fran & Freddie's Diner" <tasty@example.com>`,
 	}
 
-	ch := Cast(user, input, []string{"name"})
+	ch := Cast(user, input, []string{"name", "username"})
 	EscapeString(ch, "name", "username")
 
 	assert.Equal(t, "&#34;Fran &amp; Freddie&#39;s Diner&#34; &lt;tasty@example.com&gt;", ch.Changes()["name"])
