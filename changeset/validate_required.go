@@ -19,7 +19,7 @@ func ValidateRequired(ch *Changeset, fields []string, opts ...Option) {
 		val, exist := ch.changes[f]
 
 		// check values if it's not exist in changeset when changeOnly is false
-		if !exist && !options.changeOnly {
+		if !exist && !options.changeOnly && !ch.zero {
 			val, exist = ch.values[f]
 		}
 
