@@ -38,7 +38,7 @@ func InferFields(record interface{}) map[string]int {
 			name = inferFieldName(sf)
 		)
 
-		if name != "" && scannable(sf.Type) {
+		if name != "" { //&& scannable(sf.Type) {
 			fields[name] = index
 			index++
 		}
@@ -83,7 +83,7 @@ func inferFieldMapping(record interface{}) map[string]int {
 			name = inferFieldName(sf)
 		)
 
-		if name != "" && scannable(sf.Type) {
+		if name != "" { //&& scannable(sf.Type) {
 			mapping[name] = i
 		}
 	}
