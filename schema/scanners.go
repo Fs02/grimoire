@@ -39,7 +39,7 @@ func InferScanners(record interface{}, fields []string) []interface{} {
 			if ft.Kind() == reflect.Ptr {
 				result[index] = fv.Addr().Interface()
 			} else {
-				result[index] = Value(fv.Addr().Interface())
+				result[index] = Nullable(fv.Addr().Interface())
 			}
 		} else {
 			result[index] = &tempValue

@@ -77,7 +77,6 @@ func mapSchema(data interface{}, zero bool) (map[string]interface{}, map[string]
 			valuesMap[field] = values[index]
 
 			if zero {
-				println(field)
 				zero = isZero(value)
 			}
 		}

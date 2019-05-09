@@ -5,17 +5,17 @@ import (
 	"reflect"
 )
 
-type value struct {
+type nullable struct {
 	dest interface{}
 }
 
-var _ sql.Scanner = (*value)(nil)
+var _ sql.Scanner = (*nullable)(nil)
 
-func (v value) Scan(src interface{}) error {
-	return convertAssign(v.dest, src)
+func (n nullable) Scan(src interface{}) error {
+	return convertAssign(n.dest, src)
 }
 
-func Value(dest interface{}) interface{} {
+func Nullable(dest interface{}) interface{} {
 	if s, ok := dest.(sql.Scanner); ok {
 		return s
 	}
@@ -29,7 +29,7 @@ func Value(dest interface{}) interface{} {
 		return dest
 	}
 
-	return value{
+	return nullable{
 		dest: dest,
 	}
 }

@@ -38,9 +38,9 @@ func (c *CustomSchema) Scanners(fields []string) []interface{} {
 	for index, field := range fields {
 		switch field {
 		case "_uuid":
-			scanners[index] = Value(&c.UUID)
+			scanners[index] = Nullable(&c.UUID)
 		case "_price":
-			scanners[index] = Value(&c.Price)
+			scanners[index] = Nullable(&c.Price)
 		default:
 			scanners[index] = &tempValue
 		}

@@ -26,11 +26,11 @@ func TestInferScanners(t *testing.T) {
 		}
 		fields   = []string{"name", "id", "skip", "data", "number", "address", "not_exist"}
 		expected = []interface{}{
-			Value(&record.Name),
-			Value(&record.ID),
+			Nullable(&record.Name),
+			Nullable(&record.ID),
 			&sql.RawBytes{},
-			Value(&record.Data),
-			Value(&record.Number),
+			Nullable(&record.Data),
+			Nullable(&record.Number),
 			&record.Address,
 			&sql.RawBytes{},
 		}
@@ -46,7 +46,7 @@ func TestInferScanners_usingInterface(t *testing.T) {
 			Price: 100,
 		}
 		fields   = []string{"_uuid", "_price"}
-		expected = []interface{}{Value(&record.UUID), Value(&record.Price)}
+		expected = []interface{}{Nullable(&record.UUID), Nullable(&record.Price)}
 	)
 
 	assert.Equal(t, expected, InferScanners(&record, fields))

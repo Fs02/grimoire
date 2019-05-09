@@ -15,7 +15,7 @@ func TestTypes(t *testing.T) {
 			B *int
 			C []byte
 			D bool
-			E []*float64 // should be ignored
+			E []*float64
 			F userDefined
 			G time.Time
 		}{}
@@ -25,6 +25,7 @@ func TestTypes(t *testing.T) {
 			Int,
 			Bytes,
 			Bool,
+			reflect.TypeOf([]float64{}),
 			reflect.TypeOf(userDefined(0)),
 			Time,
 		}
