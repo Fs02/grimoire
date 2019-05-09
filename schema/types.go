@@ -35,6 +35,7 @@ type types interface {
 
 var typesCache sync.Map
 
+// InferTypes from struct.
 func InferTypes(record interface{}) []reflect.Type {
 	if v, ok := record.(types); ok {
 		return v.Types()

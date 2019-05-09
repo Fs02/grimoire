@@ -14,6 +14,7 @@ type fields interface {
 
 var fieldsCache sync.Map
 
+// InferFields from a struct.
 func InferFields(record interface{}) map[string]int {
 	if s, ok := record.(fields); ok {
 		return s.Fields()

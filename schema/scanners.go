@@ -9,6 +9,7 @@ type scanners interface {
 	Scanners([]string) []interface{}
 }
 
+// InferScanners from struct.
 func InferScanners(record interface{}, fields []string) []interface{} {
 	if v, ok := record.(scanners); ok {
 		return v.Scanners(fields)
