@@ -7,23 +7,27 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestPutDefaultEmpty(t *testing.T) {
+func TestPutDefaultEmptyChanges(t *testing.T) {
 	ch := &Changeset{
 		changes: make(map[string]interface{}),
 		values: map[string]interface{}{
 			"field1": 0,
+			"field2": 5,
 		},
 		types: map[string]reflect.Type{
 			"field1": reflect.TypeOf(0),
+			"field2": reflect.TypeOf(5),
 		},
 	}
 
 	PutDefault(ch, "field1", 10)
+	PutDefault(ch, "field2", 10)
 
 	assert.Nil(t, ch.Error())
 	assert.Nil(t, ch.Errors())
 	assert.Equal(t, 1, len(ch.Changes()))
 	assert.Equal(t, 10, ch.Changes()["field1"])
+	assert.Nil(t, ch.Changes()["field2"])
 }
 
 func TestPutDefaultExisting(t *testing.T) {
