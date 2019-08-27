@@ -1,7 +1,6 @@
 package sql
 
 import (
-	db "database/sql"
 	"testing"
 
 	"github.com/Fs02/go-paranoid"
@@ -23,7 +22,7 @@ func open() (*Adapter, error) {
 	})
 
 	// simplified tests using sqlite backend.
-	adapter.DB, err = db.Open("sqlite3", "file::memory:?mode=memory&cache=shared")
+	adapter.DB, err = NewConnection("sqlite3", "file::memory:?mode=memory&cache=shared")
 	paranoid.Panic(err, "failed to open database connection")
 
 	_, _, execerr := adapter.Exec(`CREATE TABLE test (

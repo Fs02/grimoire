@@ -23,7 +23,7 @@ type Config struct {
 // Adapter definition for mysql database.
 type Adapter struct {
 	Config    *Config
-	DB        *sql.DB
+	DB        *Connection
 	Tx        *sql.Tx
 	savepoint int
 }

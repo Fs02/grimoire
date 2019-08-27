@@ -13,8 +13,6 @@
 package mysql
 
 import (
-	db "database/sql"
-
 	"github.com/Fs02/go-paranoid"
 	"github.com/Fs02/grimoire"
 	"github.com/Fs02/grimoire/adapter/sql"
@@ -31,7 +29,7 @@ type Adapter struct {
 var _ grimoire.Adapter = (*Adapter)(nil)
 
 // Open mysql connection using dsn.
-func Open(dsn string) (*Adapter, error) {
+func Open(dsns string) (*Adapter, error) {
 	var err error
 
 	adapter := &Adapter{
@@ -44,7 +42,7 @@ func Open(dsn string) (*Adapter, error) {
 			},
 		},
 	}
-	adapter.DB, err = db.Open("mysql", dsn)
+	adapter.DB, err = sql.NewConnection("mysql", dsns)
 
 	return adapter, err
 }
@@ -56,7 +54,7 @@ func incrementFunc(adapter sql.Adapter) int {
 	if adapter.Tx != nil {
 		err = adapter.Tx.QueryRow("SHOW VARIABLES LIKE 'auto_increment_increment';").Scan(&variable, &increment)
 	} else {
-		err = adapter.DB.QueryRow("SHOW VARIABLES LIKE 'auto_increment_increment';").Scan(&variable, &increment)
+		err = adapter.DB.Master().QueryRow("SHOW VARIABLES LIKE 'auto_increment_increment';").Scan(&variable, &increment)
 	}
 	paranoid.Panic(err, "grimoire: MySQL failed to get auto_increment_increment variable")
 

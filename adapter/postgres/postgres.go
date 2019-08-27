@@ -13,7 +13,7 @@
 package postgres
 
 import (
-	db "database/sql"
+	"time"
 
 	"github.com/Fs02/grimoire"
 	"github.com/Fs02/grimoire/adapter/sql"
@@ -44,7 +44,7 @@ func Open(dsn string) (*Adapter, error) {
 			},
 		},
 	}
-	adapter.DB, err = db.Open("postgres", dsn)
+	adapter.DB, err = sql.NewConnection("postgres", dsn)
 
 	return adapter, err
 }
@@ -57,7 +57,17 @@ func (adapter *Adapter) Insert(query grimoire.Query, changes map[string]interfac
 		ID int64
 	}
 
-	_, err := adapter.Query(&result, statement, args, loggers...)
+	// use query to get insert ids for postgres
+	start := time.Now()
+	rows, err := adapter.DB.Master().Query(statement, args...)
+	if err != nil {
+		return []interface{}{}, adapter.Config.ErrorFunc(err)
+	}
+
+	go grimoire.Log(loggers, statement, time.Since(start), err)
+
+	defer rows.Close()
+	_, err = sql.Scan(&result, rows)
 	return result.ID, err
 }
 
@@ -69,8 +79,17 @@ func (adapter *Adapter) InsertAll(query grimoire.Query, fields []string, allchan
 		ID int64
 	}
 
-	_, err := adapter.Query(&result, statement, args, loggers...)
+	// use query to get insert id postgres
+	start := time.Now()
+	rows, err := adapter.DB.Master().Query(statement, args...)
+	if err != nil {
+		return []interface{}{}, adapter.Config.ErrorFunc(err)
+	}
 
+	go grimoire.Log(loggers, statement, time.Since(start), err)
+
+	defer rows.Close()
+	_, err = sql.Scan(&result, rows)
 	ids := make([]interface{}, 0, len(result))
 	for _, r := range result {
 		ids = append(ids, r.ID)

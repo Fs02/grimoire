@@ -12,4 +12,5 @@ require (
 	github.com/stretchr/testify v1.2.1
 	github.com/tidwall/gjson v1.1.3
 	github.com/tidwall/match v1.0.0
+	github.com/tsenart/nap v0.0.0-20190313104555-a650a3fbb7be
 )

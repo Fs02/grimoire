@@ -13,7 +13,6 @@
 package sqlite3
 
 import (
-	db "database/sql"
 	"strings"
 
 	"github.com/Fs02/grimoire"
@@ -44,7 +43,7 @@ func Open(dsn string) (*Adapter, error) {
 			},
 		},
 	}
-	adapter.DB, err = db.Open("sqlite3", dsn)
+	adapter.DB, err = sql.NewConnection("sqlite3", dsn)
 
 	return adapter, err
 }
