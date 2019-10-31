@@ -971,3 +971,96 @@ func TestCast_sliceWithValue(t *testing.T) {
 	assert.Equal(t, expectedValues, ch.values)
 	assert.Equal(t, sliceExpectedTypes, ch.types)
 }
+
+func TestCast_isDeepZero(t *testing.T) {
+	var emtptyIntSlice []int
+
+	tests := []struct {
+		Value  reflect.Value
+		Result bool
+		Depth  int
+	}{
+		{
+			Value:  reflect.ValueOf(1),
+			Result: false,
+		},
+		{
+			Value:  reflect.ValueOf(0),
+			Result: true,
+		},
+		{
+			Value:  reflect.ValueOf(uint(1)),
+			Result: false,
+		},
+		{
+			Value:  reflect.ValueOf(uint(0)),
+			Result: true,
+		},
+		{
+			Value:  reflect.ValueOf(float64(1)),
+			Result: false,
+		},
+		{
+			Value:  reflect.ValueOf(float64(0)),
+			Result: true,
+		},
+		{
+			Value:  reflect.ValueOf(complex(1, 1)),
+			Result: false,
+		},
+		{
+			Value:  reflect.ValueOf(complex(0, 0)),
+			Result: true,
+		},
+		{
+			Value:  reflect.ValueOf(true),
+			Result: false,
+		},
+		{
+			Value:  reflect.ValueOf(false),
+			Result: true,
+		},
+		{
+			Value:  reflect.ValueOf("Hello World!"),
+			Result: false,
+		},
+		{
+			Value:  reflect.ValueOf(""),
+			Result: true,
+		},
+		{
+			Value:  reflect.ValueOf([]int{1}),
+			Result: false,
+			Depth:  1,
+		},
+		{
+			Value:  reflect.ValueOf(emtptyIntSlice),
+			Result: true,
+			Depth:  1,
+		},
+		{
+			Value:  reflect.ValueOf([1]string{"hello world"}),
+			Result: false,
+			Depth:  1,
+		},
+		{
+			Value:  reflect.ValueOf([1]string{}),
+			Result: true,
+			Depth:  1,
+		},
+		{
+			Value:  reflect.ValueOf(struct{ Text string }{Text: "Hello World"}),
+			Result: false,
+			Depth:  1,
+		},
+		{
+			Value:  reflect.ValueOf(struct{ Text string }{Text: ""}),
+			Result: true,
+			Depth:  1,
+		},
+	}
+
+	for _, tt := range tests {
+		assert.Equal(t, tt.Result, isDeepZero(tt.Value, tt.Depth))
+	}
+}
