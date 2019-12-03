@@ -7,8 +7,13 @@ import (
 // ValidateRequiredErrorMessage is the default error message for ValidateRequired.
 var ValidateRequiredErrorMessage = "{field} is required"
 
+// isZeroer is the interface that wraps the basic isZero method.
+type isZeroer interface {
+	IsZero() bool
+}
+
 // ValidateRequired validates that one or more fields are present in the changeset.
-// It'll add error to changeset if field in the changes is nil or string made only of whitespace,
+// It'll add error to changeset if field in the changes is nil or string made only of whitespace.
 func ValidateRequired(ch *Changeset, fields []string, opts ...Option) {
 	options := Options{
 		message: ValidateRequiredErrorMessage,
@@ -24,7 +29,17 @@ func ValidateRequired(ch *Changeset, fields []string, opts ...Option) {
 		}
 
 		str, isStr := val.(string)
-		if exist && (isStr && strings.TrimSpace(str) != "") || (!isStr && val != nil) {
+		if exist && isStr && strings.TrimSpace(str) != "" {
+			continue
+		}
+
+		zero, isZeroer := val.(isZeroer)
+		if exist && isZeroer && !zero.IsZero() {
+			continue
+		}
+
+		// Only check zero value with isZero if val is not string since it has been checked before.
+		if exist && !isStr && !isZero(val) {
 			continue
 		}
 
