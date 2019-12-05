@@ -2,12 +2,19 @@ package changeset
 
 import (
 	"fmt"
+	"strings"
 	"testing"
 	"time"
 
 	"github.com/Fs02/grimoire/params"
 	"github.com/stretchr/testify/assert"
 )
+
+type customString string
+
+func (c customString) IsZero() bool {
+	return strings.TrimSpace(string(c)) == ""
+}
 
 func TestValidateRequired(t *testing.T) {
 	ch := &Changeset{
@@ -75,7 +82,6 @@ func TestValidateRequired_error(t *testing.T) {
 }
 
 func TestValidateRequired_cast_error(t *testing.T) {
-	type customString string
 	type customType struct {
 		Field1    customString
 		Field2    customString

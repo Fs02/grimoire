@@ -33,13 +33,13 @@ func ValidateRequired(ch *Changeset, fields []string, opts ...Option) {
 			continue
 		}
 
-		zero, isZeroer := val.(isZeroer)
-		if exist && isZeroer && !zero.IsZero() {
+		zeroer, isZeroer := val.(isZeroer)
+		if exist && isZeroer && !zeroer.IsZero() {
 			continue
 		}
 
-		// Only check zero value with isZero if val is not string since it has been checked before.
-		if exist && !isStr && !isZero(val) {
+		// Only check nil value if val is not string and isZeroer since it has been checked before.
+		if exist && !isStr && !isZeroer && val != nil {
 			continue
 		}
 
