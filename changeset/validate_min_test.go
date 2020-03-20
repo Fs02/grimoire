@@ -7,6 +7,19 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+func TestValidateMin_EmptyValue(t *testing.T) {
+	ch := &Changeset{
+		changes: map[string]interface{}{
+			"field": "",
+		},
+	}
+	ValidateMin(ch, "field", 5, EmptyValues(""))
+	assert.Nil(t, ch.Errors())
+
+	ValidateMin(ch, "field", 5)
+	assert.NotNil(t, ch.Errors())
+}
+
 func TestValidateMin(t *testing.T) {
 	tests := []interface{}{
 		"long text",

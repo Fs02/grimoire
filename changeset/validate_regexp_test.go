@@ -8,6 +8,21 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+func TestValidateRegexp_EmptyValue(t *testing.T) {
+	exp := regexp.MustCompile(`foo.*`)
+
+	ch := &Changeset{
+		changes: map[string]interface{}{
+			"field": "",
+		},
+	}
+	ValidateRegexp(ch, "field", exp, EmptyValues(""))
+	assert.Nil(t, ch.Errors())
+
+	ValidateRegexp(ch, "field", exp)
+	assert.NotNil(t, ch.Errors())
+}
+
 func TestValidateRegexp(t *testing.T) {
 	exp := regexp.MustCompile(`foo.*`)
 

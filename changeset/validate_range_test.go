@@ -7,6 +7,19 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+func TestValidateRange_EmptyValue(t *testing.T) {
+	ch := &Changeset{
+		changes: map[string]interface{}{
+			"field": "",
+		},
+	}
+	ValidateRange(ch, "field", 5, 15, EmptyValues(""))
+	assert.Nil(t, ch.Errors())
+
+	ValidateRange(ch, "field", 5, 15)
+	assert.NotNil(t, ch.Errors())
+}
+
 func TestValidateRange(t *testing.T) {
 	tests := []interface{}{
 		"long text",

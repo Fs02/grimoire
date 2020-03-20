@@ -7,6 +7,19 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+func TestValidatePattern_EmptyValue(t *testing.T) {
+	ch := &Changeset{
+		changes: map[string]interface{}{
+			"field": "",
+		},
+	}
+	ValidatePattern(ch, "field", "foo.*", EmptyValues(""))
+	assert.Nil(t, ch.Errors())
+
+	ValidatePattern(ch, "field", "foo.*")
+	assert.NotNil(t, ch.Errors())
+}
+
 func TestValidatePattern(t *testing.T) {
 	tests := []interface{}{
 		"seafood",
