@@ -560,7 +560,7 @@ func collectPreloadTarget(preload []preloadTarget, refIndex []int) (map[interfac
 
 		// reset to zero if slice.
 		if fv.Kind() == reflect.Slice || fv.Kind() == reflect.Array {
-			fv.Set(reflect.Zero(fv.Type()))
+			fv.Set(reflect.MakeSlice(fv.Type(), 0, 0))
 		}
 
 		addrs[id] = append(addrs[id], fv)
