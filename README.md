@@ -2,6 +2,8 @@
 [![GoDoc](https://godoc.org/github.com/Fs02/grimoire?status.svg)](https://godoc.org/github.com/Fs02/grimoire) [![Build Status](https://travis-ci.org/Fs02/grimoire.svg?branch=master)](https://travis-ci.org/Fs02/grimoire) [![Go Report Card](https://goreportcard.com/badge/github.com/Fs02/grimoire)](https://goreportcard.com/report/github.com/Fs02/grimoire) [![Maintainability](https://api.codeclimate.com/v1/badges/d487e2be0ed7b0b1fed1/maintainability)](https://codeclimate.com/github/Fs02/grimoire/maintainability) [![Test Coverage](https://api.codeclimate.com/v1/badges/d487e2be0ed7b0b1fed1/test_coverage)](https://codeclimate.com/github/Fs02/grimoire/test_coverage)
 [![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2FFs02%2Fgrimoire.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2FFs02%2Fgrimoire?ref=badge_shield)
 
+> :warning: Grimoire V2 is available as [REL](https://github.com/Fs02/rel) and [Changeset](https://github.com/Fs02/changeset) package.
+
 Grimoire is a database access layer inspired by Ecto. It features a flexible query API and built-in validation. It currently supports MySQL, PostgreSQL, and SQLite3 but a custom adapter can be implemented easily using the Adapter interface.
 
 Features:
