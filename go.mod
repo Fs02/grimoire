@@ -12,6 +12,5 @@ require (
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/stretchr/objx v0.1.0 // indirect
 	github.com/stretchr/testify v1.2.1
-	github.com/tidwall/gjson v1.1.3
-	github.com/tidwall/match v1.0.0 // indirect
+	github.com/tidwall/gjson v1.6.5
 )
